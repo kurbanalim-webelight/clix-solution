@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clix — Bulk Import Redesign · Screen Walkthrough</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Domine:wght@400;500;600;700&family=Anek+Latin:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Clix portal brand (from globals.css .portal-theme) */
+  --bg:#0a171f;
+  --bg-2:#0f222e;
+  --card:#122b36;
+  --coral:#fc916a;
+  --gold:#dda971;
+  --teal:#1a3f4a;
+  --cream:#f4e9e2;
+  --muted:#8ba3ab;
+  --border:rgba(244,233,226,0.09);
+  --border-2:rgba(244,233,226,0.16);
+  --green:#4ade80;
+  --amber:#fbbf24;
+  --red:#f87171;
+  /* CMS light surface, used inside the mockups */
+  --ui-bg:#fbf8f6;
+  --ui-card:#fdfbfa;
+  --ui-fg:#1a3f4a;
+  --ui-mut:#5c7880;
+  --ui-bd:#dfd5ce;
+  --ui-bd2:#b4c9cf;
+  --ui-primary:#fc9369;
+  --ui-accent:#f5ebe4;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Anek Latin',system-ui,sans-serif;background:var(--bg);color:var(--cream);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#2a4a55;border-radius:3px}
+
+/* ─── HERO ─── */
+.hero{min-height:82vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:80px 24px;position:relative;overflow:hidden;
+  background:radial-gradient(ellipse 1100px 640px at 50% 28%,rgba(252,145,106,.10) 0%,transparent 70%),
+             radial-gradient(ellipse 620px 420px at 82% 84%,rgba(221,169,113,.08) 0%,transparent 62%),var(--bg)}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(252,145,106,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(252,145,106,.05) 1px,transparent 1px);background-size:64px 64px;mask-image:radial-gradient(ellipse 78% 58% at 50% 46%,black 0%,transparent 100%);-webkit-mask-image:radial-gradient(ellipse 78% 58% at 50% 46%,black 0%,transparent 100%)}
+.hero>*{position:relative;z-index:1}
+.hero-pill{display:inline-flex;align-items:center;gap:9px;background:rgba(252,145,106,.09);border:1px solid rgba(252,145,106,.28);padding:8px 18px;border-radius:100px;font-size:13px;font-weight:600;color:var(--coral);margin-bottom:34px}
+.hero-pill::before{content:'';width:7px;height:7px;background:var(--coral);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(1.45)}}
+.hero h1{font-family:'Domine',Georgia,serif;font-size:clamp(36px,5.6vw,68px);font-weight:700;line-height:1.1;letter-spacing:-1.5px;margin-bottom:16px;color:#fff}
+.hero h1 span{background:linear-gradient(135deg,var(--coral) 0%,var(--gold) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:clamp(15px,2vw,19px);font-weight:300;color:var(--muted);max-width:600px;line-height:1.72;margin:0 auto 38px}
+.hero-meta{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.meta-tag{padding:6px 14px;border-radius:8px;font-size:12px;font-weight:600;border:1px solid}
+.m-c{background:rgba(252,145,106,.08);color:var(--coral);border-color:rgba(252,145,106,.22)}
+.m-g{background:rgba(74,222,128,.07);color:var(--green);border-color:rgba(74,222,128,.2)}
+.m-o{background:rgba(221,169,113,.08);color:var(--gold);border-color:rgba(221,169,113,.22)}
+.m-n{background:rgba(244,233,226,.05);color:var(--muted);border-color:var(--border-2)}
+
+/* ─── NAV ─── */
+.nav{position:sticky;top:0;z-index:200;background:rgba(10,23,31,.93);backdrop-filter:blur(22px);border-bottom:1px solid var(--border)}
+.nav-inner{max-width:1320px;margin:0 auto;padding:0 24px;display:flex;align-items:center;overflow-x:auto}
+.nav-logo{font-family:'Domine',serif;font-size:14px;font-weight:700;color:var(--coral);padding:15px 22px 15px 0;border-right:1px solid var(--border);margin-right:8px;white-space:nowrap;flex-shrink:0}
+.nav-link{padding:15px 18px;font-size:13px;font-weight:500;color:var(--muted);text-decoration:none;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap}
+.nav-link:hover{color:var(--coral);border-bottom-color:rgba(252,145,106,.45)}
+
+/* ─── SECTIONS ─── */
+.page-section{padding:84px 24px;max-width:1320px;margin:0 auto}
+.section-divider{border:none;height:1px;background:var(--border);max-width:1320px;margin:0 auto}
+.sec-head{text-align:center;margin-bottom:56px}
+.sec-tag{display:inline-block;padding:6px 14px;border-radius:100px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:16px;background:rgba(252,145,106,.1);color:var(--coral);border:1px solid rgba(252,145,106,.2)}
+.sec-tag.o{background:rgba(221,169,113,.1);color:var(--gold);border-color:rgba(221,169,113,.2)}
+.sec-tag.g{background:rgba(74,222,128,.1);color:var(--green);border-color:rgba(74,222,128,.2)}
+.sec-title{font-family:'Domine',Georgia,serif;font-size:clamp(23px,3.2vw,40px);font-weight:600;color:#fff;letter-spacing:-.8px;margin-bottom:13px}
+.sec-desc{font-size:16px;font-weight:300;color:var(--muted);max-width:600px;margin:0 auto;line-height:1.72}
+
+/* ─── JOURNEY ─── */
+.journey-wrap{display:flex;align-items:flex-start;justify-content:center;flex-wrap:wrap}
+.journey-step{display:flex;flex-direction:column;align-items:center;text-align:center;width:152px;flex-shrink:0}
+.journey-icon-wrap{position:relative}
+.journey-icon{width:70px;height:70px;border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:27px;border:2px solid;transition:transform .2s}
+.journey-icon:hover{transform:scale(1.07)}
+.ji-1{background:rgba(252,145,106,.1);border-color:rgba(252,145,106,.3)}
+.ji-2{background:rgba(221,169,113,.1);border-color:rgba(221,169,113,.3)}
+.ji-3{background:rgba(96,165,250,.1);border-color:rgba(96,165,250,.3)}
+.ji-4{background:rgba(167,139,250,.1);border-color:rgba(167,139,250,.3)}
+.ji-5{background:rgba(74,222,128,.1);border-color:rgba(74,222,128,.3)}
+.journey-num{position:absolute;top:-8px;left:-8px;width:22px;height:22px;border-radius:50%;background:var(--coral);color:#0a171f;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid var(--bg);z-index:2}
+.journey-label{font-size:13.5px;font-weight:700;color:#fff;margin:14px 0 5px}
+.journey-sub{font-size:11.5px;color:var(--muted);line-height:1.55}
+.journey-arrow{display:flex;align-items:center;padding:0 4px;margin-top:32px;flex-shrink:0}
+.j-arr-line{width:38px;height:2px;background:linear-gradient(90deg,rgba(252,145,106,.18),rgba(252,145,106,.6));position:relative}
+.j-arr-line::after{content:'';position:absolute;right:-6px;top:-4px;border-left:8px solid rgba(252,145,106,.6);border-top:5px solid transparent;border-bottom:5px solid transparent}
+.j-opt{font-size:9.5px;color:var(--gold);font-weight:600;margin-top:6px;letter-spacing:.4px}
+
+/* ═══ CMS WINDOW MOCKUP ═══ */
+.win{background:var(--ui-bg);border-radius:14px;overflow:hidden;border:1px solid rgba(244,233,226,.14);box-shadow:0 30px 70px rgba(0,0,0,.5),0 0 0 1px rgba(0,0,0,.3);width:100%}
+.win-bar{background:#12303b;padding:9px 14px;display:flex;align-items:center;gap:9px;border-bottom:1px solid rgba(0,0,0,.25)}
+.dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.d1{background:#ff5f57}.d2{background:#febc2e}.d3{background:#28c840}
+.win-url{flex:1;text-align:center;font-size:10.5px;color:rgba(244,233,226,.45);font-family:ui-monospace,Menlo,monospace;letter-spacing:.2px}
+.win-body{display:flex;min-height:330px}
+.side{width:132px;background:var(--ui-card);border-right:1px solid var(--ui-bd);padding:12px 0;flex-shrink:0}
+.side-brand{font-family:'Domine',serif;font-size:11.5px;font-weight:700;color:var(--ui-fg);padding:0 14px 12px;border-bottom:1px solid var(--ui-bd);margin-bottom:9px}
+.side-i{padding:5px 14px;font-size:10.5px;color:var(--ui-mut);display:flex;align-items:center;gap:7px}
+.side-i.on{background:rgba(252,147,105,.14);color:#a8481c;font-weight:700;box-shadow:inset 2px 0 0 var(--ui-primary)}
+.side-sec{padding:11px 14px 4px;font-size:8.5px;letter-spacing:1.1px;text-transform:uppercase;color:#a9b8bd;font-weight:700}
+.main{flex:1;padding:20px 22px;min-width:0}
+.ui-h{font-family:'Domine',serif;font-size:16px;font-weight:600;color:var(--ui-fg);margin-bottom:2px}
+.ui-sub{font-size:11px;color:var(--ui-mut);margin-bottom:16px}
+
+/* step blocks inside the CMS */
+.sb{background:var(--ui-card);border:1px solid var(--ui-bd);border-radius:10px;padding:13px 15px;margin-bottom:10px;position:relative}
+.sb.dim{opacity:.5}
+.sb.active{border-color:var(--ui-primary);box-shadow:0 0 0 3px rgba(252,147,105,.12)}
+.sb.done{border-color:rgba(22,163,74,.4);background:rgba(22,163,74,.04)}
+.sb-head{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+.sb-n{width:19px;height:19px;border-radius:50%;background:var(--ui-primary);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sb.dim .sb-n{background:#c8d4d8;color:#fff}
+.sb.done .sb-n{background:#16a34a}
+.sb-t{font-size:11.5px;font-weight:700;color:var(--ui-fg)}
+.sb-hint{font-size:10px;color:var(--ui-mut);margin-left:auto}
+.tagx{font-size:8.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:2px 7px;border-radius:100px;background:var(--ui-accent);color:#8a4a1c;border:1px solid var(--ui-bd)}
+
+/* select control */
+.sel{border:1px solid var(--ui-bd2);background:#fff;border-radius:8px;padding:7px 11px;font-size:11.5px;color:var(--ui-fg);display:flex;align-items:center;justify-content:space-between;gap:10px}
+.sel.ph{color:#9bb0b6}
+.sel.open{border-color:var(--ui-primary);box-shadow:0 0 0 3px rgba(252,147,105,.14)}
+.sel.dis{background:#f1eeec;color:#a9b8bd;border-color:var(--ui-bd)}
+.sel .chev{color:#9bb0b6;font-size:9px}
+.menu{border:1px solid var(--ui-bd2);border-radius:8px;background:#fff;margin-top:5px;overflow:hidden;box-shadow:0 12px 26px rgba(26,63,74,.13)}
+.menu-search{padding:7px 11px;border-bottom:1px solid var(--ui-bd);font-size:11px;color:var(--ui-fg);display:flex;align-items:center;gap:7px}
+.menu-search .cur{display:inline-block;width:1px;height:11px;background:var(--ui-primary);animation:blink 1.1s step-end infinite}
+@keyframes blink{50%{opacity:0}}
+.opt{padding:7px 11px;display:flex;align-items:center;gap:9px;font-size:11px;color:var(--ui-fg);border-bottom:1px solid #f0eae6}
+.opt:last-child{border-bottom:none}
+.opt.hi{background:rgba(252,147,105,.1)}
+.opt .nm{font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.opt .ct{font-size:9.5px;color:var(--ui-mut);flex-shrink:0}
+.bdg{font-size:8.5px;font-weight:700;padding:1.5px 7px;border-radius:100px;flex-shrink:0;letter-spacing:.3px}
+.bdg.se{background:rgba(96,165,250,.16);color:#1d5fa8}
+.bdg.fl{background:rgba(146,164,171,.2);color:#4c656d}
+.opt.add{color:#a8481c;font-weight:700;background:#fffaf7}
+
+/* dropzone / file */
+.drop{border:1.5px dashed var(--ui-bd2);border-radius:9px;padding:16px;text-align:center;background:#fff}
+.drop .ic{font-size:18px;opacity:.4}
+.drop .t1{font-size:11.5px;font-weight:600;color:var(--ui-fg);margin-top:5px}
+.drop .t2{font-size:10px;color:var(--ui-mut);margin-top:2px}
+.filerow{border:1px solid rgba(22,163,74,.35);background:rgba(22,163,74,.05);border-radius:9px;padding:9px 12px;display:flex;align-items:center;gap:10px}
+.filerow .fi{width:24px;height:24px;border-radius:6px;background:#16a34a;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
+.filerow .fn{font-size:11.5px;font-weight:600;color:var(--ui-fg)}
+.filerow .fm{font-size:9.5px;color:var(--ui-mut)}
+.filerow .fx{margin-left:auto;color:#9bb0b6;font-size:12px}
+
+/* buttons */
+.btn{background:var(--ui-primary);color:#fff;border-radius:8px;padding:8px 16px;font-size:11.5px;font-weight:700;display:inline-flex;align-items:center;gap:7px;box-shadow:0 2px 5px rgba(252,147,105,.3)}
+.btn.gh{background:#fff;color:var(--ui-fg);border:1px solid var(--ui-bd2);box-shadow:none;font-weight:600}
+.btn.dis{background:#e3dcd8;color:#a9b8bd;box-shadow:none}
+.btnrow{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;align-items:center}
+.btnrow .lft{margin-right:auto;font-size:10.5px;color:var(--ui-mut)}
+
+/* summary chips */
+.chipsum{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}
+.csum{background:var(--ui-accent);border:1px solid var(--ui-bd);border-radius:100px;padding:4px 11px;font-size:10.5px;color:var(--ui-fg);display:flex;align-items:center;gap:6px}
+.csum b{font-weight:700}
+.csum .ch{color:#a8481c;font-weight:700;font-size:9.5px}
+
+/* tiles */
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.tile{border:1px solid var(--ui-bd);border-radius:9px;padding:9px 11px;background:#fff}
+.tile .tn{font-family:'Domine',serif;font-size:17px;font-weight:700;color:var(--ui-fg);line-height:1.1}
+.tile .tl{font-size:9.5px;color:var(--ui-mut);margin-top:2px}
+.tile.w .tn{color:#b7791f}
+.tile.g .tn{color:#16a34a}
+
+/* preview table */
+.tbl{border:1px solid var(--ui-bd);border-radius:9px;overflow:hidden;background:#fff}
+.tr{display:flex;align-items:center;gap:9px;padding:6.5px 11px;font-size:10.5px;border-bottom:1px solid #f0eae6;color:var(--ui-fg)}
+.tr:last-child{border-bottom:none}
+.tr.hd{background:var(--ui-accent);font-size:8.5px;text-transform:uppercase;letter-spacing:.8px;font-weight:700;color:var(--ui-mut)}
+.cb{width:12px;height:12px;border-radius:3px;background:var(--ui-primary);color:#fff;font-size:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.cb.off{background:#fff;border:1px solid var(--ui-bd2)}
+.tr .c-ep{width:26px;color:var(--ui-mut);flex-shrink:0}
+.tr .c-ti{flex:1;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tr .c-md{width:40px;flex-shrink:0;color:var(--ui-mut)}
+.tr .c-st{width:112px;flex-shrink:0;text-align:right}
+.wtag{font-size:8.5px;font-weight:700;padding:1.5px 7px;border-radius:100px;background:rgba(251,191,36,.18);color:#8a6008}
+.gtag{font-size:8.5px;font-weight:700;padding:1.5px 7px;border-radius:100px;background:rgba(22,163,74,.14);color:#15803d}
+
+/* success */
+.okwrap{text-align:center;padding:22px 0}
+.okmark{width:44px;height:44px;border-radius:50%;background:#16a34a;color:#fff;font-size:21px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
+.oktitle{font-family:'Domine',serif;font-size:15px;font-weight:600;color:var(--ui-fg)}
+.oksub{font-size:11px;color:var(--ui-mut);margin-top:3px}
+
+/* ─── SCREEN LAYOUT ─── */
+.screens{display:flex;flex-direction:column;gap:64px}
+.screen-row{display:grid;grid-template-columns:300px 1fr;gap:34px;align-items:center}
+.screen-row.flip{grid-template-columns:1fr 300px}
+.screen-row.flip .screen-note{order:2}
+.screen-note .sn-num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:9px;background:rgba(252,145,106,.12);border:1px solid rgba(252,145,106,.3);color:var(--coral);font-size:12px;font-weight:800;margin-bottom:14px}
+.screen-note h3{font-family:'Domine',serif;font-size:20px;font-weight:600;color:#fff;margin-bottom:9px;line-height:1.28}
+.screen-note p{font-size:13.5px;color:var(--muted);line-height:1.68;margin-bottom:11px}
+.screen-note p:last-child{margin-bottom:0}
+.screen-note b{color:var(--cream);font-weight:600}
+.kv{border-left:2px solid rgba(252,145,106,.4);padding-left:12px;margin-top:14px}
+.kv div{font-size:11.5px;color:var(--muted);margin-bottom:4px}
+.kv div b{color:var(--coral);font-weight:600}
+
+/* ─── BRANCH ─── */
+.branch{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.branch-col>.bc-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.bc-pill{font-size:11px;font-weight:700;padding:5px 13px;border-radius:100px;letter-spacing:.3px}
+.bc-pill.a{background:rgba(96,165,250,.12);color:#7db4f5;border:1px solid rgba(96,165,250,.28)}
+.bc-pill.b{background:rgba(146,164,171,.14);color:#a9bfc6;border:1px solid rgba(146,164,171,.28)}
+.bc-desc{font-size:12.5px;color:var(--muted);line-height:1.6;margin-top:12px}
+
+/* ─── FLOW DIAGRAM ─── */
+.fd{display:flex;justify-content:center;gap:0;flex-wrap:wrap;align-items:flex-start}
+.fd-col{display:flex;flex-direction:column;align-items:center;min-width:250px;max-width:290px;flex:1}
+.fd-box{width:100%;padding:12px 15px;border-radius:12px;text-align:center;font-size:12.5px;font-weight:600;border:1px solid}
+.fd-box small{display:block;font-size:10.5px;font-weight:400;opacity:.72;margin-top:3px}
+.fd-box.start{background:rgba(252,145,106,.12);border-color:rgba(252,145,106,.4);color:var(--coral)}
+.fd-box.act{background:var(--card);border-color:var(--border-2);color:var(--cream)}
+.fd-box.dec{background:rgba(221,169,113,.09);border-color:rgba(221,169,113,.32);color:var(--gold)}
+.fd-box.suc{background:rgba(74,222,128,.1);border-color:rgba(74,222,128,.3);color:var(--green)}
+.fd-box.skip{background:rgba(146,164,171,.09);border-color:rgba(146,164,171,.25);color:#a9bfc6;border-style:dashed}
+.fd-arr{width:2px;height:26px;background:linear-gradient(180deg,rgba(252,145,106,.5),rgba(252,145,106,.15));position:relative}
+.fd-arr::after{content:'';position:absolute;bottom:-6px;left:-4px;border-top:7px solid rgba(252,145,106,.5);border-left:5px solid transparent;border-right:5px solid transparent}
+.fd-lbl{font-size:10px;color:var(--muted);font-weight:600;letter-spacing:.4px;padding:5px 0}
+.fd-two{display:flex;gap:14px;width:100%}
+.fd-two>div{flex:1;display:flex;flex-direction:column;align-items:center}
+
+/* ─── TABLE ─── */
+.cmp{width:100%;border-collapse:collapse;background:var(--bg-2);border:1px solid var(--border);border-radius:12px;overflow:hidden;font-size:14px}
+.cmp thead th{text-align:left;font-size:10.5px;letter-spacing:1.2px;text-transform:uppercase;font-weight:700;color:var(--muted);padding:14px 20px;background:rgba(244,233,226,.04);border-bottom:1px solid var(--border)}
+.cmp thead th:not(:first-child){text-align:center;width:22%}
+.cmp td{padding:13px 20px;border-bottom:1px solid var(--border);color:var(--muted)}
+.cmp tr:last-child td{border-bottom:none}
+.cmp td:first-child{color:var(--cream);font-weight:500}
+.cmp td:not(:first-child){text-align:center;font-weight:600}
+.was{color:var(--red)}
+.now{color:var(--green)}
+
+/* ─── CARDS ─── */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.pcard{background:var(--bg-2);border:1px solid var(--border);border-radius:14px;padding:24px 26px}
+.pcard h4{font-family:'Domine',serif;font-size:16px;font-weight:600;color:#fff;margin-bottom:14px;display:flex;align-items:center;gap:9px}
+.pcard .mk{width:21px;height:21px;border-radius:50%;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.mk.in{background:rgba(74,222,128,.16);color:var(--green);border:1px solid rgba(74,222,128,.35)}
+.mk.out{background:rgba(221,169,113,.14);color:var(--gold);border:1px solid rgba(221,169,113,.32)}
+.pcard ul{list-style:none}
+.pcard li{font-size:13px;color:var(--muted);padding-left:18px;position:relative;margin-bottom:9px;line-height:1.55}
+.pcard li::before{content:'';position:absolute;left:2px;top:8px;width:5px;height:5px;border-radius:50%;background:var(--gold)}
+.pcard li b{color:var(--cream);font-weight:600}
+
+/* ─── DECISIONS ─── */
+.asks{display:grid;gap:12px}
+.askrow{background:var(--bg-2);border:1px solid var(--border);border-radius:12px;padding:18px 22px 18px 58px;position:relative}
+.askrow .an{position:absolute;left:20px;top:18px;width:24px;height:24px;border-radius:50%;border:1.5px solid rgba(221,169,113,.5);color:var(--gold);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.askrow h4{font-size:14.5px;font-weight:600;color:#fff;margin-bottom:4px}
+.askrow p{font-size:13px;color:var(--muted);line-height:1.6}
+.askrow .rec{color:var(--green);font-weight:600}
+
+/* ─── CALLOUT ─── */
+.call{border-radius:12px;padding:18px 22px;font-size:13.5px;line-height:1.65;border:1px solid var(--border);background:var(--bg-2);margin:26px 0}
+.call.hi{border-left:3px solid var(--coral)}
+.call.g{border-left:3px solid var(--green)}
+.call.o{border-left:3px solid var(--gold)}
+.call b{color:var(--cream);display:block;margin-bottom:4px;font-weight:600}
+.call span{color:var(--muted)}
+
+/* ─── FOOTER ─── */
+footer{border-top:1px solid var(--border);padding:34px 24px 60px;text-align:center;color:var(--muted);font-size:12.5px}
+footer .fb{font-family:'Domine',serif;color:var(--coral);font-weight:700;font-size:14px;margin-bottom:6px}
+
+/* ─── FADE ─── */
+.fade-up{opacity:0;transform:translateY(22px);transition:opacity .55s ease,transform .55s ease}
+.fade-up.visible{opacity:1;transform:translateY(0)}
+
+@media(max-width:900px){
+  .screen-row,.screen-row.flip{grid-template-columns:1fr;gap:22px}
+  .screen-row.flip .screen-note{order:0}
+  .branch,.grid2,.tiles{grid-template-columns:1fr}
+  .win-body{min-height:0}
+  .side{display:none}
+  .fd-col{max-width:100%}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════ HERO ══════════ -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-pill">Proposed redesign — for approval</div>
+  <h1>Bulk Import,<br><span>Reimagined</span></h1>
+  <p class="hero-sub">
+    Three linked spreadsheets and 39 columns become two dropdowns and one small file.
+    Here is every screen, exactly as the content team will see it.
+  </p>
+  <div class="hero-meta">
+    <span class="meta-tag m-c">✓ Pick series from a list</span>
+    <span class="meta-tag m-o">✓ Season step only when needed</span>
+    <span class="meta-tag m-g">✓ One file, 2 required columns</span>
+    <span class="meta-tag m-n">✓ Preview before anything saves</span>
+  </div>
+</section>
+
+<!-- ══════════ NAV ══════════ -->
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="nav-logo">▶ Clix CMS</div>
+    <a class="nav-link" href="#journey">The Journey</a>
+    <a class="nav-link" href="#screens">Screens</a>
+    <a class="nav-link" href="#branch">Seasons vs Flat</a>
+    <a class="nav-link" href="#logic">Selection Logic</a>
+    <a class="nav-link" href="#compare">Before / After</a>
+    <a class="nav-link" href="#scope">Scope</a>
+    <a class="nav-link" href="#decisions">Decisions</a>
+  </div>
+</nav>
+
+<!-- ══════════ JOURNEY ══════════ -->
+<section id="journey" class="page-section">
+  <div class="sec-head fade-up">
+    <div class="sec-tag">The Journey</div>
+    <h2 class="sec-title">Four Choices, One File</h2>
+    <p class="sec-desc">The operator never types a series name, a season number or an episode number. Every one of those is chosen from what already exists in the platform.</p>
+  </div>
+
+  <div class="journey-wrap fade-up">
+    <div class="journey-step">
+      <div class="journey-icon-wrap"><div class="journey-icon ji-1">📚</div><div class="journey-num">1</div></div>
+      <div class="journey-label">Choose Series</div>
+      <div class="journey-sub">Searchable list of existing series</div>
+    </div>
+    <div class="journey-arrow"><div><div class="j-arr-line"></div></div></div>
+
+    <div class="journey-step">
+      <div class="journey-icon-wrap"><div class="journey-icon ji-2">🗂️</div><div class="journey-num">2</div></div>
+      <div class="journey-label">Choose Season</div>
+      <div class="journey-sub">Appears only for series that use seasons</div>
+      <div class="j-opt">CONDITIONAL</div>
+    </div>
+    <div class="journey-arrow"><div><div class="j-arr-line"></div></div></div>
+
+    <div class="journey-step">
+      <div class="journey-icon-wrap"><div class="journey-icon ji-3">📄</div><div class="journey-num">3</div></div>
+      <div class="journey-label">Upload File</div>
+      <div class="journey-sub">One spreadsheet listing the episodes</div>
+    </div>
+    <div class="journey-arrow"><div><div class="j-arr-line"></div></div></div>
+
+    <div class="journey-step">
+      <div class="journey-icon-wrap"><div class="journey-icon ji-4">👁️</div><div class="journey-num">4</div></div>
+      <div class="journey-label">Review</div>
+      <div class="journey-sub">Check the list, untick anything unwanted</div>
+    </div>
+    <div class="journey-arrow"><div><div class="j-arr-line"></div></div></div>
+
+    <div class="journey-step">
+      <div class="journey-icon-wrap"><div class="journey-icon ji-5">✓</div><div class="journey-num">5</div></div>
+      <div class="journey-label">Confirm</div>
+      <div class="journey-sub">Episodes are added to the chosen season</div>
+    </div>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- ══════════ SCREENS ══════════ -->
+<section id="screens" class="page-section">
+  <div class="sec-head fade-up">
+    <div class="sec-tag o">Screen by Screen</div>
+    <h2 class="sec-title">Every Step, As It Will Look</h2>
+    <p class="sec-desc">Six screens from opening the page to a finished upload. Each one shows the exact controls and what the operator sees at that moment.</p>
+  </div>
+
+  <div class="screens">
+
+    <!-- ── SCREEN 1 ── -->
+    <div class="screen-row fade-up">
+      <div class="screen-note">
+        <div class="sn-num">1</div>
+        <h3>Opening the page</h3>
+        <p>Three numbered steps, revealed in order. Only <b>Step 1</b> is active — the rest are greyed out until the choice above them is made, so there is no way to start in the wrong place.</p>
+        <div class="kv">
+          <div><b>Active:</b> Select series</div>
+          <div><b>Locked:</b> Season, Upload</div>
+        </div>
+      </div>
+      <div class="win">
+        <div class="win-bar"><span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span><span class="win-url">clix-cms · Content › Bulk Import</span></div>
+        <div class="win-body">
+          <div class="side">
+            <div class="side-brand">▶ Clix CMS</div>
+            <div class="side-i">◻ Dashboard</div>
+            <div class="side-sec">Content</div>
+            <div class="side-i">◻ Videos</div>
+            <div class="side-i">◻ Audio</div>
+            <div class="side-i">◻ Series</div>
+            <div class="side-i">◻ Speakers</div>
+            <div class="side-i on">◼ Bulk Import</div>
+            <div class="side-sec">Users</div>
+            <div class="side-i">◻ Subscribers</div>
+          </div>
+          <div class="main">
+            <div class="ui-h">Bulk Import</div>
+            <div class="ui-sub">Add multiple episodes to a series in one go</div>
+
+            <div class="sb active">
+              <div class="sb-head"><span class="sb-n">1</span><span class="sb-t">Select series</span></div>
+              <div class="sel ph">Choose a series… <span class="chev">▼</span></div>
+            </div>
+
+            <div class="sb dim">
+              <div class="sb-head"><span class="sb-n">2</span><span class="sb-t">Select season</span><span class="sb-hint">Select a series first</span></div>
+              <div class="sel dis">— <span class="chev">▼</span></div>
+            </div>
+
+            <div class="sb dim">
+              <div class="sb-head"><span class="sb-n">3</span><span class="sb-t">Upload episodes file</span><span class="sb-hint">Locked</span></div>
+              <div class="drop"><div class="ic">⬆</div><div class="t1">Drag &amp; drop your CSV</div><div class="t2">or click to browse</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SCREEN 2 ── -->
+    <div class="screen-row flip fade-up">
+      <div class="win">
+        <div class="win-bar"><span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span><span class="win-url">clix-cms · Content › Bulk Import</span></div>
+        <div class="win-body">
+          <div class="side">
+            <div class="side-brand">▶ Clix CMS</div>
+            <div class="side-i">◻ Dashboard</div>
+            <div class="side-sec">Content</div>
+            <div class="side-i">◻ Videos</div>
+            <div class="side-i">◻ Audio</div>
+            <div class="side-i">◻ Series</div>
+            <div class="side-i">◻ Speakers</div>
+            <div class="side-i on">◼ Bulk Import</div>
+            <div class="side-sec">Users</div>
+            <div class="side-i">◻ Subscribers</div>
+          </div>
+          <div class="main">
+            <div class="ui-h">Bulk Import</div>
+            <div class="ui-sub">Add multiple episodes to a series in one go</div>
+            <div class="sb active">
+              <div class="sb-head"><span class="sb-n">1</span><span class="sb-t">Select series</span></div>
+              <div class="sel open">Choose a series… <span class="chev">▲</span></div>
+              <div class="menu">
+                <div class="menu-search">🔍 <span>bhaga</span><span class="cur"></span></div>
+                <div class="opt hi"><span class="nm">Bhagavad Gita</span><span class="bdg se">SEASONS</span><span class="ct">3 seasons</span></div>
+                <div class="opt"><span class="nm">Bhagavad Gita — Chapter Talks</span><span class="bdg fl">FLAT</span><span class="ct">41 episodes</span></div>
+                <div class="opt"><span class="nm">Bhagavad Gita for Children</span><span class="bdg se">SEASONS</span><span class="ct">2 seasons</span></div>
+              </div>
+            </div>
+            <div class="sb dim">
+              <div class="sb-head"><span class="sb-n">2</span><span class="sb-t">Select season</span><span class="sb-hint">Select a series first</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="screen-note">
+        <div class="sn-num">2</div>
+        <h3>Choosing the series</h3>
+        <p>The operator types a few letters and the list filters instantly. Every entry shows whether that series is organised into <b>seasons</b> or is a <b>flat</b> list of episodes, plus how much is already in it.</p>
+        <p>This badge is what decides the next step — and the operator can see it before they commit.</p>
+        <div class="kv">
+          <div><b>Search:</b> filters as you type</div>
+          <div><b>Badge:</b> Seasons or Flat</div>
+          <div><b>Count:</b> what is already there</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SCREEN 3 ── -->
+    <div class="screen-row fade-up">
+      <div class="screen-note">
+        <div class="sn-num">3</div>
+        <h3>Choosing the season</h3>
+        <p>Because <b>Bhagavad Gita</b> uses seasons, Step 2 unlocks and lists that series' seasons with their current episode counts.</p>
+        <p>If the season does not exist yet, it can be created right here without leaving the page.</p>
+        <div class="kv">
+          <div><b>Only real seasons</b> are listed</div>
+          <div><b>＋ New season</b> creates one inline</div>
+        </div>
+      </div>
+      <div class="win">
+        <div class="win-bar"><span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span><span class="win-url">clix-cms · Content › Bulk Import</span></div>
+        <div class="win-body">
+          <div class="side">
+            <div class="side-brand">▶ Clix CMS</div>
+            <div class="side-i">◻ Dashboard</div>
+            <div class="side-sec">Content</div>
+            <div class="side-i">◻ Videos</div>
+            <div class="side-i">◻ Audio</div>
+            <div class="side-i">◻ Series</div>
+            <div class="side-i">◻ Speakers</div>
+            <div class="side-i on">◼ Bulk Import</div>
+            <div class="side-sec">Users</div>
+            <div class="side-i">◻ Subscribers</div>
+          </div>
+          <div class="main">
+            <div class="ui-h">Bulk Import</div>
+            <div class="ui-sub">Add multiple episodes to a series in one go</div>
+            <div class="sb done">
+              <div class="sb-head"><span class="sb-n">✓</span><span class="sb-t">Series</span><span class="tagx">Seasons</span></div>
+              <div class="sel">Bhagavad Gita <span class="chev">▼</span></div>
+            </div>
+            <div class="sb active">
+              <div class="sb-head"><span class="sb-n">2</span><span class="sb-t">Select season</span></div>
+              <div class="sel open">Choose a season… <span class="chev">▲</span></div>
+              <div class="menu">
+                <div class="opt"><span class="nm">Season 1 — The Beginning</span><span class="ct">12 episodes</span></div>
+                <div class="opt hi"><span class="nm">Season 2 — Karma Yoga</span><span class="ct">8 episodes</span></div>
+                <div class="opt"><span class="nm">Season 3 — Dhyana</span><span class="ct">empty</span></div>
+                <div class="opt add"><span class="nm">＋ Create a new season</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SCREEN 4 ── -->
+    <div class="screen-row flip fade-up">
+      <div class="win">
+        <div class="win-bar"><span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span><span class="win-url">clix-cms · Content › Bulk Import</span></div>
+        <div class="win-body">
+          <div class="side">
+            <div class="side-brand">▶ Clix CMS</div>
+            <div class="side-i">◻ Dashboard</div>
+            <div class="side-sec">Content</div>
+            <div class="side-i">◻ Videos</div>
+            <div class="side-i">◻ Audio</div>
+            <div class="side-i">◻ Series</div>
+            <div class="side-i">◻ Speakers</div>
+            <div class="side-i on">◼ Bulk Import</div>
+            <div class="side-sec">Users</div>
+            <div class="side-i">◻ Subscribers</div>
+          </div>
+          <div class="main">
+            <div class="ui-h">Bulk Import</div>
+            <div class="chipsum" style="margin-top:12px">
+              <span class="csum">📚 <b>Bhagavad Gita</b> <span class="ch">Change</span></span>
+              <span class="csum">🗂️ <b>Season 2 — Karma Yoga</b> <span class="ch">Change</span></span>
+            </div>
+            <div class="sb active">
+              <div class="sb-head"><span class="sb-n">3</span><span class="sb-t">Upload episodes file</span><span class="sb-hint">Download template</span></div>
+              <div class="filerow">
+                <span class="fi">✓</span>
+                <span><span class="fn">episodes.csv</span><br><span class="fm">24 rows found · 18.4 KB</span></span>
+                <span class="fx">✕</span>
+              </div>
+            </div>
+            <div class="btnrow">
+              <span class="lft">Nothing is saved yet</span>
+              <span class="btn gh">Cancel</span>
+              <span class="btn">Review 24 episodes →</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="screen-note">
+        <div class="sn-num">4</div>
+        <h3>Uploading the file</h3>
+        <p>Both choices collapse into small summary chips at the top, each with a <b>Change</b> link — always visible, so there is never any doubt about where the episodes are going.</p>
+        <p>The file needs only two filled columns: the <b>episode title</b> and the <b>media file address</b>. A matching template is one click away.</p>
+        <div class="kv">
+          <div><b>Row count</b> confirmed on upload</div>
+          <div><b>Still nothing saved</b> at this point</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SCREEN 5 ── -->
+    <div class="screen-row fade-up">
+      <div class="screen-note">
+        <div class="sn-num">5</div>
+        <h3>Reviewing before it saves</h3>
+        <p>Every episode that will be created is listed with the number it will receive. Anything questionable is flagged in place — a duplicate title, a missing thumbnail — without blocking the rest.</p>
+        <p>Rows can be unticked. Twenty-four rows in the file, twenty-three added: entirely the operator's choice.</p>
+        <div class="kv">
+          <div><b>Warnings</b> do not block the upload</div>
+          <div><b>Errors</b> would, and are listed the same way</div>
+          <div><b>Untick</b> anything to leave it out</div>
+        </div>
+      </div>
+      <div class="win">
+        <div class="win-bar"><span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span><span class="win-url">clix-cms · Content › Bulk Import › Review</span></div>
+        <div class="win-body">
+          <div class="side">
+            <div class="side-brand">▶ Clix CMS</div>
+            <div class="side-i">◻ Dashboard</div>
+            <div class="side-sec">Content</div>
+            <div class="side-i">◻ Videos</div>
+            <div class="side-i">◻ Audio</div>
+            <div class="side-i">◻ Series</div>
+            <div class="side-i">◻ Speakers</div>
+            <div class="side-i on">◼ Bulk Import</div>
+            <div class="side-sec">Users</div>
+            <div class="side-i">◻ Subscribers</div>
+          </div>
+          <div class="main">
+            <div class="chipsum">
+              <span class="csum">📚 <b>Bhagavad Gita</b></span>
+              <span class="csum">🗂️ <b>Season 2</b></span>
+            </div>
+            <div class="tiles">
+              <div class="tile g"><div class="tn">24</div><div class="tl">Ready to add</div></div>
+              <div class="tile w"><div class="tn">2</div><div class="tl">Warnings</div></div>
+              <div class="tile"><div class="tn">0</div><div class="tl">Errors</div></div>
+            </div>
+            <div class="tbl">
+              <div class="tr hd"><span style="width:12px"></span><span class="c-ep">Ep</span><span class="c-ti">Episode title</span><span class="c-md">Type</span><span class="c-st">Status</span></div>
+              <div class="tr"><span class="cb">✓</span><span class="c-ep">9</span><span class="c-ti">The Nature of Action</span><span class="c-md">Video</span><span class="c-st"><span class="gtag">READY</span></span></div>
+              <div class="tr"><span class="cb">✓</span><span class="c-ep">10</span><span class="c-ti">Renunciation Explained</span><span class="c-md">Video</span><span class="c-st"><span class="gtag">READY</span></span></div>
+              <div class="tr"><span class="cb">✓</span><span class="c-ep">11</span><span class="c-ti">Karma Yoga</span><span class="c-md">Video</span><span class="c-st"><span class="wtag">TITLE EXISTS</span></span></div>
+              <div class="tr"><span class="cb">✓</span><span class="c-ep">12</span><span class="c-ti">The Steady Mind</span><span class="c-md">Audio</span><span class="c-st"><span class="wtag">NO THUMBNAIL</span></span></div>
+              <div class="tr"><span class="cb off"></span><span class="c-ep">13</span><span class="c-ti">Draft — do not publish yet</span><span class="c-md">Video</span><span class="c-st"><span class="gtag">READY</span></span></div>
+              <div class="tr" style="color:#9bb0b6;justify-content:center;font-size:9.5px">+ 19 more rows</div>
+            </div>
+            <div class="btnrow">
+              <span class="lft">23 of 24 selected</span>
+              <span class="btn gh">Back</span>
+              <span class="btn">Add 23 episodes</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SCREEN 6 ── -->
+    <div class="screen-row flip fade-up">
+      <div class="win">
+        <div class="win-bar"><span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span><span class="win-url">clix-cms · Content › Bulk Import › Done</span></div>
+        <div class="win-body">
+          <div class="side">
+            <div class="side-brand">▶ Clix CMS</div>
+            <div class="side-i">◻ Dashboard</div>
+            <div class="side-sec">Content</div>
+            <div class="side-i">◻ Videos</div>
+            <div class="side-i">◻ Audio</div>
+            <div class="side-i">◻ Series</div>
+            <div class="side-i">◻ Speakers</div>
+            <div class="side-i on">◼ Bulk Import</div>
+            <div class="side-sec">Users</div>
+            <div class="side-i">◻ Subscribers</div>
+          </div>
+          <div class="main">
+            <div class="okwrap">
+              <div class="okmark">✓</div>
+              <div class="oktitle">23 episodes added</div>
+              <div class="oksub">Bhagavad Gita · Season 2 — Karma Yoga · completed in 6.1s</div>
+            </div>
+            <div class="tiles">
+              <div class="tile g"><div class="tn">23</div><div class="tl">Episodes added</div></div>
+              <div class="tile"><div class="tn">1</div><div class="tl">Skipped by you</div></div>
+              <div class="tile"><div class="tn">0</div><div class="tl">Failed</div></div>
+            </div>
+            <div class="btnrow">
+              <span class="btn gh">Import more</span>
+              <span class="btn">View season →</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="screen-note">
+        <div class="sn-num">6</div>
+        <h3>Finished</h3>
+        <p>A plain summary of what happened, and a direct link into the season to check the result. If any row had failed it would be listed here with the reason — the rest would still have been added.</p>
+        <div class="kv">
+          <div><b>Added:</b> what went in</div>
+          <div><b>Skipped:</b> what you unticked</div>
+          <div><b>Failed:</b> with the reason</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- ══════════ BRANCH ══════════ -->
+<section id="branch" class="page-section">
+  <div class="sec-head fade-up">
+    <div class="sec-tag">The One Conditional</div>
+    <h2 class="sec-title">Seasons vs Flat Series</h2>
+    <p class="sec-desc">The only branch in the whole flow. The platform already knows which kind each series is, so the operator is never asked — the step simply appears or it does not.</p>
+  </div>
+
+  <div class="branch fade-up">
+    <!-- A -->
+    <div class="branch-col">
+      <div class="bc-head"><span class="bc-pill a">A · Series uses seasons</span></div>
+      <div class="win">
+        <div class="win-bar"><span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span><span class="win-url">3 steps</span></div>
+        <div style="padding:18px 20px;background:var(--ui-bg)">
+          <div class="sb done" style="margin-bottom:8px">
+            <div class="sb-head"><span class="sb-n">✓</span><span class="sb-t">Series</span><span class="tagx">Seasons</span></div>
+            <div class="sel">Bhagavad Gita <span class="chev">▼</span></div>
+          </div>
+          <div class="sb active" style="margin-bottom:8px">
+            <div class="sb-head"><span class="sb-n">2</span><span class="sb-t">Select season</span></div>
+            <div class="sel">Season 2 — Karma Yoga <span class="chev">▼</span></div>
+          </div>
+          <div class="sb">
+            <div class="sb-head"><span class="sb-n">3</span><span class="sb-t">Upload episodes file</span></div>
+            <div class="drop" style="padding:11px"><div class="t1">episodes.csv</div></div>
+          </div>
+        </div>
+      </div>
+      <p class="bc-desc">The season step appears between the series and the file. Episodes are added to that one season.</p>
+    </div>
+
+    <!-- B -->
+    <div class="branch-col">
+      <div class="bc-head"><span class="bc-pill b">B · Flat series</span></div>
+      <div class="win">
+        <div class="win-bar"><span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span><span class="win-url">2 steps</span></div>
+        <div style="padding:18px 20px;background:var(--ui-bg)">
+          <div class="sb done" style="margin-bottom:8px">
+            <div class="sb-head"><span class="sb-n">✓</span><span class="sb-t">Series</span><span class="tagx">Flat</span></div>
+            <div class="sel">Weekly Satsang <span class="chev">▼</span></div>
+          </div>
+          <div class="sb active" style="margin-bottom:8px">
+            <div class="sb-head"><span class="sb-n">2</span><span class="sb-t">Upload episodes file</span></div>
+            <div class="drop" style="padding:11px"><div class="t1">episodes.csv</div></div>
+          </div>
+          <div style="border:1px dashed var(--ui-bd2);border-radius:9px;padding:10px 12px;font-size:10.5px;color:var(--ui-mut);text-align:center;background:#fff">
+            No season step — this series does not use seasons
+          </div>
+        </div>
+      </div>
+      <p class="bc-desc">The season step is not shown at all. Episodes are added straight to the series, in file order.</p>
+    </div>
+  </div>
+
+  <div class="call hi fade-up">
+    <b>Why this matters</b>
+    <span>Today the operator has to know this rule and encode it themselves — a season number in a flat series is an error, a missing one in a seasons series is another. Those two error messages account for a large share of failed uploads. In the new flow the rule is enforced by the interface, so neither mistake is possible.</span>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- ══════════ LOGIC ══════════ -->
+<section id="logic" class="page-section">
+  <div class="sec-head fade-up">
+    <div class="sec-tag o">Selection Logic</div>
+    <h2 class="sec-title">What Happens Behind Each Choice</h2>
+    <p class="sec-desc">Each selection narrows the next one, so by the time the file is read there is nothing left to interpret.</p>
+  </div>
+
+  <div class="fd fade-up">
+    <div class="fd-col">
+      <div class="fd-box start">Open Bulk Import<small>Nothing selected yet</small></div>
+      <div class="fd-arr"></div>
+      <div class="fd-box act">Select a series<small>Searchable list of existing series</small></div>
+      <div class="fd-arr"></div>
+      <div class="fd-box dec">Does this series use seasons?<small>Answered by the platform, not the operator</small></div>
+      <div class="fd-arr"></div>
+
+      <div class="fd-two">
+        <div>
+          <div class="fd-lbl">YES</div>
+          <div class="fd-box act">Show season list</div>
+          <div class="fd-arr"></div>
+          <div class="fd-box act">Season chosen</div>
+        </div>
+        <div>
+          <div class="fd-lbl">NO</div>
+          <div class="fd-box skip">Season step hidden</div>
+          <div class="fd-arr"></div>
+          <div class="fd-box act">Straight to upload</div>
+        </div>
+      </div>
+
+      <div class="fd-arr"></div>
+      <div class="fd-box act">Upload episodes file<small>Title and media address required</small></div>
+      <div class="fd-arr"></div>
+      <div class="fd-box dec">Review screen<small>Warnings shown · rows can be unticked</small></div>
+      <div class="fd-arr"></div>
+      <div class="fd-box suc">Episodes added<small>Numbered in file order, after the existing ones</small></div>
+    </div>
+  </div>
+
+  <div class="call o fade-up">
+    <b>Episode numbering</b>
+    <span>New episodes continue from whatever is already in that series or season — if Season 2 ends at episode 8, the file's first row becomes episode 9. The order of the rows in the spreadsheet is the order they appear on the platform, so sorting in Excel is all that is needed.</span>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- ══════════ COMPARE ══════════ -->
+<section id="compare" class="page-section">
+  <div class="sec-head fade-up">
+    <div class="sec-tag g">Before / After</div>
+    <h2 class="sec-title">What Actually Changes</h2>
+    <p class="sec-desc">Every figure below counts something the operator has to do, or has to get right, for an upload to succeed.</p>
+  </div>
+
+  <table class="cmp fade-up">
+    <thead><tr><th>Measure</th><th>Today</th><th>Proposed</th></tr></thead>
+    <tbody>
+      <tr><td>Spreadsheets to prepare</td><td class="was">3</td><td class="now">1</td></tr>
+      <tr><td>Columns across all files</td><td class="was">39</td><td class="now">12</td></tr>
+      <tr><td>Columns that must be filled in</td><td class="was">6</td><td class="now">2</td></tr>
+      <tr><td>Names that must match exactly across files</td><td class="was">2</td><td class="now">0</td></tr>
+      <tr><td>Where the series is chosen</td><td class="was">Typed in 2 files</td><td class="now">Dropdown</td></tr>
+      <tr><td>Where the season is chosen</td><td class="was">Typed as a number</td><td class="now">Dropdown</td></tr>
+      <tr><td>Where a mistake is corrected</td><td class="was">Excel, then re-upload</td><td class="now">On screen</td></tr>
+      <tr><td>Length of the instruction manual</td><td class="was">1,500+ lines</td><td class="now">~1 page</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<hr class="section-divider">
+
+<!-- ══════════ SCOPE ══════════ -->
+<section id="scope" class="page-section">
+  <div class="sec-head fade-up">
+    <div class="sec-tag">Scope</div>
+    <h2 class="sec-title">What This Phase Delivers</h2>
+    <p class="sec-desc">Nothing is removed from the platform. Two things move to screens that already exist, and one returns in a later phase.</p>
+  </div>
+
+  <div class="grid2 fade-up">
+    <div class="pcard">
+      <h4><span class="mk in">✓</span> Included now</h4>
+      <ul>
+        <li>Series and season selection by dropdown, with search</li>
+        <li>Season step shown <b>only</b> where it applies</li>
+        <li>Single-file episode upload, two required columns</li>
+        <li>Review screen with per-row warnings before anything saves</li>
+        <li>Row selection — add 23 of 24 if preferred</li>
+        <li>Inline <b>create season</b> so the page never has to be left</li>
+        <li>New template file and a one-page guide</li>
+      </ul>
+    </div>
+    <div class="pcard">
+      <h4><span class="mk out">→</span> Moves or comes later</h4>
+      <ul>
+        <li><b>Creating series in bulk</b> — done on the existing Series screen, one at a time</li>
+        <li><b>Creating seasons in bulk</b> — done on the Series screen, or inline here</li>
+        <li><b>Editing existing episodes by file</b> — a later phase, see below</li>
+        <li><b>Multiple seasons per upload</b> — one season per upload for now</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="call o fade-up">
+    <b>Why editing by spreadsheet comes later</b>
+    <span>Episodes can be reordered by dragging them in the CMS, which renumbers them. A spreadsheet that identifies episodes by number could therefore update the wrong one after a reorder — silently. When this returns, it will work by downloading the current episode list and editing that file, so every row carries a permanent identifier. Leaving it out of the first release keeps this delivery simple and safe.</span>
+  </div>
+
+  <div class="call g fade-up">
+    <b>Unchanged</b>
+    <span>The same roles keep access — Owner, Content Admin and Content Manager. Media files are read from the same storage in the same formats. The Series, Videos and Audio screens are untouched, and existing content is unaffected.</span>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- ══════════ DECISIONS ══════════ -->
+<section id="decisions" class="page-section">
+  <div class="sec-head fade-up">
+    <div class="sec-tag o">Sign-off</div>
+    <h2 class="sec-title">Four Decisions Needed</h2>
+    <p class="sec-desc">Each carries our recommendation. Confirm these and development can begin.</p>
+  </div>
+
+  <div class="asks fade-up">
+    <div class="askrow">
+      <span class="an">1</span>
+      <h4>Is creating series one at a time acceptable?</h4>
+      <p>New series are added far less often than episodes. <span class="rec">Recommendation: yes</span> — create them on the existing Series screen and keep bulk upload focused on episodes.</p>
+    </div>
+    <div class="askrow">
+      <span class="an">2</span>
+      <h4>Is one season per upload acceptable?</h4>
+      <p>Three seasons would mean three uploads. <span class="rec">Recommendation: yes</span> — it keeps the flow unambiguous, and each upload takes seconds to set up.</p>
+    </div>
+    <div class="askrow">
+      <span class="an">3</span>
+      <h4>Should the automatic series trailer be kept?</h4>
+      <p>Today a newly imported series automatically gets a short trailer taken from its first episode. <span class="rec">Recommendation: keep it</span> — applied when a series has no trailer yet and episodes are uploaded to it.</p>
+    </div>
+    <div class="askrow">
+      <span class="an">4</span>
+      <h4>Should the current three-file import stay available during changeover?</h4>
+      <p>It could run alongside the new flow for a period. <span class="rec">Recommendation: no</span> — running both invites confusion, and the new flow covers everything the content team does today.</p>
+    </div>
+  </div>
+
+  <div class="call hi fade-up">
+    <b>Next step</b>
+    <span>On approval of these four points, development begins. No change reaches the live platform until the new flow has been tested end to end with a real batch of episodes and walked through with the content team.</span>
+  </div>
+</section>
+
+<footer>
+  <div class="fb">▶ Clix CMS</div>
+  Bulk Import — Screen Walkthrough · Version 1.0 · 10 August 2026<br>
+  Screens are design mockups; final styling follows the live CMS theme.
+</footer>
+
+<script>
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
+  }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll('.fade-up').forEach((el) => io.observe(el));
+</script>
+
+</body>
+</html>
