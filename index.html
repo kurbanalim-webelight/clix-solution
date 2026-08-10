@@ -1,1089 +1,925 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Chinmaya Clix · Coupon Card & POS Redemption — Feature KT</title>
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Anek+Latin:wght@400;500;600;700&family=Domine:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clix — Bulk Import Redesign · Screen Walkthrough</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Domine:wght@400;500;600;700&family=Anek+Latin:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  :root{
-    --bg:#FBF8F6; --fg:#1A3F4A; --card:#FDFBFA; --muted-bg:#DCE4E7; --muted-fg:#3D5C66;
-    --border:#B4C9CF; --input-border:#C2D1D6; --primary:#FC9369; --primary-d:#f57a48;
-    --primary-fg:#FBF8F6; --navy:#152a3a; --navy-2:#0f222e; --portal-bg:#0a171f; --portal-primary:#fc916a;
-    --ring:#C47D3D;
-    --green-bg:#dcfce7; --green-fg:#15803d; --green-bd:#86efac;
-    --blue-bg:#dbeafe; --blue-fg:#1d4ed8; --blue-bd:#93c5fd;
-    --amber-bg:#fef3c7; --amber-fg:#b45309; --amber-bd:#fcd34d;
-    --purple-bg:#f3e8ff; --purple-fg:#7e22ce; --purple-bd:#d8b4fe;
-    --gray-bg:#e8eef0; --gray-fg:#3D5C66; --gray-bd:#cdd9dd;
-    --red-bg:#fee2e2; --red-fg:#b91c1c; --red-bd:#fca5a5;
-    --shadow:0 1px 3px rgba(21,42,58,.08),0 8px 24px rgba(21,42,58,.06);
-  }
-  *{box-sizing:border-box}
-  html{scroll-behavior:smooth}
-  body{margin:0;background:var(--bg);color:var(--fg);font-family:"Anek Latin",system-ui,sans-serif;font-size:15px;line-height:1.55}
-  h1,h2,h3,h4{font-family:"Domine",Georgia,serif;margin:0}
-  code,.mono{font-family:"JetBrains Mono",monospace}
-  a{color:var(--primary-d);text-decoration:none}
+:root{
+  /* Clix portal brand (from globals.css .portal-theme) */
+  --bg:#0a171f;
+  --bg-2:#0f222e;
+  --card:#122b36;
+  --coral:#fc916a;
+  --gold:#dda971;
+  --teal:#1a3f4a;
+  --cream:#f4e9e2;
+  --muted:#8ba3ab;
+  --border:rgba(244,233,226,0.09);
+  --border-2:rgba(244,233,226,0.16);
+  --green:#4ade80;
+  --amber:#fbbf24;
+  --red:#f87171;
+  /* CMS light surface, used inside the mockups */
+  --ui-bg:#fbf8f6;
+  --ui-card:#fdfbfa;
+  --ui-fg:#1a3f4a;
+  --ui-mut:#5c7880;
+  --ui-bd:#dfd5ce;
+  --ui-bd2:#b4c9cf;
+  --ui-primary:#fc9369;
+  --ui-accent:#f5ebe4;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Anek Latin',system-ui,sans-serif;background:var(--bg);color:var(--cream);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#2a4a55;border-radius:3px}
 
-  /* ---------- top bar ---------- */
-  .topbar{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:16px;
-    background:var(--navy);color:#fff;padding:12px 24px;box-shadow:var(--shadow)}
-  .topbar .brand{display:flex;align-items:center;gap:10px;font-weight:700}
-  .topbar .logo{height:34px;width:34px;border-radius:9px;background:var(--primary);
-    display:grid;place-items:center;color:var(--navy);font-weight:800}
-  .topbar .title{font-family:"Domine",serif;font-size:16px}
-  .topbar .sub{font-size:12px;opacity:.7;font-family:"Anek Latin"}
-  .topbar .spacer{flex:1}
-  .topbar .flowbtn{background:var(--primary);color:var(--navy);font-weight:700;border:none;
-    padding:10px 18px;border-radius:9px;cursor:pointer;font-size:14px;display:flex;align-items:center;gap:8px;
-    transition:transform .12s,box-shadow .12s}
-  .topbar .flowbtn:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(252,147,105,.45)}
+/* ─── HERO ─── */
+.hero{min-height:82vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:80px 24px;position:relative;overflow:hidden;
+  background:radial-gradient(ellipse 1100px 640px at 50% 28%,rgba(252,145,106,.10) 0%,transparent 70%),
+             radial-gradient(ellipse 620px 420px at 82% 84%,rgba(221,169,113,.08) 0%,transparent 62%),var(--bg)}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(252,145,106,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(252,145,106,.05) 1px,transparent 1px);background-size:64px 64px;mask-image:radial-gradient(ellipse 78% 58% at 50% 46%,black 0%,transparent 100%);-webkit-mask-image:radial-gradient(ellipse 78% 58% at 50% 46%,black 0%,transparent 100%)}
+.hero>*{position:relative;z-index:1}
+.hero-pill{display:inline-flex;align-items:center;gap:9px;background:rgba(252,145,106,.09);border:1px solid rgba(252,145,106,.28);padding:8px 18px;border-radius:100px;font-size:13px;font-weight:600;color:var(--coral);margin-bottom:34px}
+.hero-pill::before{content:'';width:7px;height:7px;background:var(--coral);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(1.45)}}
+.hero h1{font-family:'Domine',Georgia,serif;font-size:clamp(36px,5.6vw,68px);font-weight:700;line-height:1.1;letter-spacing:-1.5px;margin-bottom:16px;color:#fff}
+.hero h1 span{background:linear-gradient(135deg,var(--coral) 0%,var(--gold) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:clamp(15px,2vw,19px);font-weight:300;color:var(--muted);max-width:600px;line-height:1.72;margin:0 auto 38px}
+.hero-meta{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.meta-tag{padding:6px 14px;border-radius:8px;font-size:12px;font-weight:600;border:1px solid}
+.m-c{background:rgba(252,145,106,.08);color:var(--coral);border-color:rgba(252,145,106,.22)}
+.m-g{background:rgba(74,222,128,.07);color:var(--green);border-color:rgba(74,222,128,.2)}
+.m-o{background:rgba(221,169,113,.08);color:var(--gold);border-color:rgba(221,169,113,.22)}
+.m-n{background:rgba(244,233,226,.05);color:var(--muted);border-color:var(--border-2)}
 
-  /* ---------- layout ---------- */
-  .wrap{display:flex;max-width:1340px;margin:0 auto;gap:28px;padding:28px 24px 80px}
-  .docnav{position:sticky;top:78px;align-self:flex-start;width:240px;flex:none;
-    max-height:calc(100vh - 100px);overflow:auto;font-size:13.5px}
-  .docnav .grp{font-family:"Domine";text-transform:uppercase;letter-spacing:.05em;font-size:11px;
-    color:var(--muted-fg);margin:18px 0 6px;font-weight:700}
-  .docnav a{display:block;padding:6px 10px;border-radius:8px;color:var(--muted-fg);margin:2px 0}
-  .docnav a:hover{background:var(--muted-bg);color:var(--fg)}
-  .docnav a.active{background:var(--primary);color:var(--primary-fg);font-weight:600}
-  .content{flex:1;min-width:0}
+/* ─── NAV ─── */
+.nav{position:sticky;top:0;z-index:200;background:rgba(10,23,31,.93);backdrop-filter:blur(22px);border-bottom:1px solid var(--border)}
+.nav-inner{max-width:1320px;margin:0 auto;padding:0 24px;display:flex;align-items:center;overflow-x:auto}
+.nav-logo{font-family:'Domine',serif;font-size:14px;font-weight:700;color:var(--coral);padding:15px 22px 15px 0;border-right:1px solid var(--border);margin-right:8px;white-space:nowrap;flex-shrink:0}
+.nav-link{padding:15px 18px;font-size:13px;font-weight:500;color:var(--muted);text-decoration:none;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap}
+.nav-link:hover{color:var(--coral);border-bottom-color:rgba(252,145,106,.45)}
 
-  section{scroll-margin-top:84px;margin-bottom:46px}
-  .sec-h{display:flex;align-items:baseline;gap:12px;margin-bottom:6px}
-  .sec-h h2{font-size:24px}
-  .sec-num{color:var(--primary-d);font-weight:700;font-family:"Domine"}
-  .lead{color:var(--muted-fg);margin:0 0 18px;max-width:74ch}
+/* ─── SECTIONS ─── */
+.page-section{padding:84px 24px;max-width:1320px;margin:0 auto}
+.section-divider{border:none;height:1px;background:var(--border);max-width:1320px;margin:0 auto}
+.sec-head{text-align:center;margin-bottom:56px}
+.sec-tag{display:inline-block;padding:6px 14px;border-radius:100px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:16px;background:rgba(252,145,106,.1);color:var(--coral);border:1px solid rgba(252,145,106,.2)}
+.sec-tag.o{background:rgba(221,169,113,.1);color:var(--gold);border-color:rgba(221,169,113,.2)}
+.sec-tag.g{background:rgba(74,222,128,.1);color:var(--green);border-color:rgba(74,222,128,.2)}
+.sec-title{font-family:'Domine',Georgia,serif;font-size:clamp(23px,3.2vw,40px);font-weight:600;color:#fff;letter-spacing:-.8px;margin-bottom:13px}
+.sec-desc{font-size:16px;font-weight:300;color:var(--muted);max-width:600px;margin:0 auto;line-height:1.72}
 
-  /* ---------- hero ---------- */
-  .hero{background:linear-gradient(135deg,var(--navy) 0%,var(--navy-2) 100%);color:#fff;
-    border-radius:18px;padding:34px 38px;margin-bottom:34px;position:relative;overflow:hidden}
-  .hero:after{content:"";position:absolute;right:-60px;top:-60px;width:260px;height:260px;
-    background:radial-gradient(circle,rgba(252,147,105,.35),transparent 70%)}
-  .hero h1{font-size:30px;margin-bottom:8px}
-  .hero p{opacity:.85;max-width:70ch;margin:0}
-  .pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
-  .pill{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);
-    padding:5px 12px;border-radius:99px;font-size:12.5px}
+/* ─── JOURNEY ─── */
+.journey-wrap{display:flex;align-items:flex-start;justify-content:center;flex-wrap:wrap}
+.journey-step{display:flex;flex-direction:column;align-items:center;text-align:center;width:152px;flex-shrink:0}
+.journey-icon-wrap{position:relative}
+.journey-icon{width:70px;height:70px;border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:27px;border:2px solid;transition:transform .2s}
+.journey-icon:hover{transform:scale(1.07)}
+.ji-1{background:rgba(252,145,106,.1);border-color:rgba(252,145,106,.3)}
+.ji-2{background:rgba(221,169,113,.1);border-color:rgba(221,169,113,.3)}
+.ji-3{background:rgba(96,165,250,.1);border-color:rgba(96,165,250,.3)}
+.ji-4{background:rgba(167,139,250,.1);border-color:rgba(167,139,250,.3)}
+.ji-5{background:rgba(74,222,128,.1);border-color:rgba(74,222,128,.3)}
+.journey-num{position:absolute;top:-8px;left:-8px;width:22px;height:22px;border-radius:50%;background:var(--coral);color:#0a171f;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid var(--bg);z-index:2}
+.journey-label{font-size:13.5px;font-weight:700;color:#fff;margin:14px 0 5px}
+.journey-sub{font-size:11.5px;color:var(--muted);line-height:1.55}
+.journey-arrow{display:flex;align-items:center;padding:0 4px;margin-top:32px;flex-shrink:0}
+.j-arr-line{width:38px;height:2px;background:linear-gradient(90deg,rgba(252,145,106,.18),rgba(252,145,106,.6));position:relative}
+.j-arr-line::after{content:'';position:absolute;right:-6px;top:-4px;border-left:8px solid rgba(252,145,106,.6);border-top:5px solid transparent;border-bottom:5px solid transparent}
+.j-opt{font-size:9.5px;color:var(--gold);font-weight:600;margin-top:6px;letter-spacing:.4px}
 
-  /* ---------- cards / notes ---------- */
-  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow)}
-  .note{background:var(--card);border:1px solid var(--border);border-left:4px solid var(--primary);
-    border-radius:12px;padding:18px 20px;margin-top:16px}
-  .note h4{font-size:15px;margin-bottom:10px;display:flex;align-items:center;gap:8px}
-  .note ul{margin:8px 0 0;padding-left:18px}
-  .note li{margin:5px 0}
-  .note.warn{border-left-color:#e0a13a}
-  .note.danger{border-left-color:#d96b6b}
-  .note.ok{border-left-color:#5aa86b}
+/* ═══ CMS WINDOW MOCKUP ═══ */
+.win{background:var(--ui-bg);border-radius:14px;overflow:hidden;border:1px solid rgba(244,233,226,.14);box-shadow:0 30px 70px rgba(0,0,0,.5),0 0 0 1px rgba(0,0,0,.3);width:100%}
+.win-bar{background:#12303b;padding:9px 14px;display:flex;align-items:center;gap:9px;border-bottom:1px solid rgba(0,0,0,.25)}
+.dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.d1{background:#ff5f57}.d2{background:#febc2e}.d3{background:#28c840}
+.win-url{flex:1;text-align:center;font-size:10.5px;color:rgba(244,233,226,.45);font-family:ui-monospace,Menlo,monospace;letter-spacing:.2px}
+.win-body{display:flex;min-height:330px}
+.side{width:132px;background:var(--ui-card);border-right:1px solid var(--ui-bd);padding:12px 0;flex-shrink:0}
+.side-brand{font-family:'Domine',serif;font-size:11.5px;font-weight:700;color:var(--ui-fg);padding:0 14px 12px;border-bottom:1px solid var(--ui-bd);margin-bottom:9px}
+.side-i{padding:5px 14px;font-size:10.5px;color:var(--ui-mut);display:flex;align-items:center;gap:7px}
+.side-i.on{background:rgba(252,147,105,.14);color:#a8481c;font-weight:700;box-shadow:inset 2px 0 0 var(--ui-primary)}
+.side-sec{padding:11px 14px 4px;font-size:8.5px;letter-spacing:1.1px;text-transform:uppercase;color:#a9b8bd;font-weight:700}
+.main{flex:1;padding:20px 22px;min-width:0}
+.ui-h{font-family:'Domine',serif;font-size:16px;font-weight:600;color:var(--ui-fg);margin-bottom:2px}
+.ui-sub{font-size:11px;color:var(--ui-mut);margin-bottom:16px}
 
-  .frtag{display:inline-block;background:var(--navy);color:#fff;font-family:"JetBrains Mono";
-    font-size:10.5px;padding:2px 7px;border-radius:6px;margin-right:4px;vertical-align:middle}
-  .frtag.alt{background:var(--primary);color:var(--navy)}
+/* step blocks inside the CMS */
+.sb{background:var(--ui-card);border:1px solid var(--ui-bd);border-radius:10px;padding:13px 15px;margin-bottom:10px;position:relative}
+.sb.dim{opacity:.5}
+.sb.active{border-color:var(--ui-primary);box-shadow:0 0 0 3px rgba(252,147,105,.12)}
+.sb.done{border-color:rgba(22,163,74,.4);background:rgba(22,163,74,.04)}
+.sb-head{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+.sb-n{width:19px;height:19px;border-radius:50%;background:var(--ui-primary);color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sb.dim .sb-n{background:#c8d4d8;color:#fff}
+.sb.done .sb-n{background:#16a34a}
+.sb-t{font-size:11.5px;font-weight:700;color:var(--ui-fg)}
+.sb-hint{font-size:10px;color:var(--ui-mut);margin-left:auto}
+.tagx{font-size:8.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:2px 7px;border-radius:100px;background:var(--ui-accent);color:#8a4a1c;border:1px solid var(--ui-bd)}
 
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-  @media(max-width:900px){.grid2{grid-template-columns:1fr}.docnav{display:none}}
+/* select control */
+.sel{border:1px solid var(--ui-bd2);background:#fff;border-radius:8px;padding:7px 11px;font-size:11.5px;color:var(--ui-fg);display:flex;align-items:center;justify-content:space-between;gap:10px}
+.sel.ph{color:#9bb0b6}
+.sel.open{border-color:var(--ui-primary);box-shadow:0 0 0 3px rgba(252,147,105,.14)}
+.sel.dis{background:#f1eeec;color:#a9b8bd;border-color:var(--ui-bd)}
+.sel .chev{color:#9bb0b6;font-size:9px}
+.menu{border:1px solid var(--ui-bd2);border-radius:8px;background:#fff;margin-top:5px;overflow:hidden;box-shadow:0 12px 26px rgba(26,63,74,.13)}
+.menu-search{padding:7px 11px;border-bottom:1px solid var(--ui-bd);font-size:11px;color:var(--ui-fg);display:flex;align-items:center;gap:7px}
+.menu-search .cur{display:inline-block;width:1px;height:11px;background:var(--ui-primary);animation:blink 1.1s step-end infinite}
+@keyframes blink{50%{opacity:0}}
+.opt{padding:7px 11px;display:flex;align-items:center;gap:9px;font-size:11px;color:var(--ui-fg);border-bottom:1px solid #f0eae6}
+.opt:last-child{border-bottom:none}
+.opt.hi{background:rgba(252,147,105,.1)}
+.opt .nm{font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.opt .ct{font-size:9.5px;color:var(--ui-mut);flex-shrink:0}
+.bdg{font-size:8.5px;font-weight:700;padding:1.5px 7px;border-radius:100px;flex-shrink:0;letter-spacing:.3px}
+.bdg.se{background:rgba(96,165,250,.16);color:#1d5fa8}
+.bdg.fl{background:rgba(146,164,171,.2);color:#4c656d}
+.opt.add{color:#a8481c;font-weight:700;background:#fffaf7}
 
-  /* ---------- browser frame (mock) ---------- */
-  .browser{border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:var(--shadow);background:#fff}
-  .browser .bar{display:flex;align-items:center;gap:8px;background:#eef3f4;border-bottom:1px solid var(--border);padding:9px 14px}
-  .dot{height:11px;width:11px;border-radius:50%}
-  .dot.r{background:#ec6a5e}.dot.y{background:#f4bf4f}.dot.g{background:#61c554}
-  .url{flex:1;background:#fff;border:1px solid var(--border);border-radius:7px;padding:4px 12px;
-    font-size:12px;color:var(--muted-fg);font-family:"JetBrains Mono"}
-  .tag-mock{font-size:10px;color:var(--muted-fg);text-transform:uppercase;letter-spacing:.08em}
+/* dropzone / file */
+.drop{border:1.5px dashed var(--ui-bd2);border-radius:9px;padding:16px;text-align:center;background:#fff}
+.drop .ic{font-size:18px;opacity:.4}
+.drop .t1{font-size:11.5px;font-weight:600;color:var(--ui-fg);margin-top:5px}
+.drop .t2{font-size:10px;color:var(--ui-mut);margin-top:2px}
+.filerow{border:1px solid rgba(22,163,74,.35);background:rgba(22,163,74,.05);border-radius:9px;padding:9px 12px;display:flex;align-items:center;gap:10px}
+.filerow .fi{width:24px;height:24px;border-radius:6px;background:#16a34a;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
+.filerow .fn{font-size:11.5px;font-weight:600;color:var(--ui-fg)}
+.filerow .fm{font-size:9.5px;color:var(--ui-mut)}
+.filerow .fx{margin-left:auto;color:#9bb0b6;font-size:12px}
 
-  /* app shell inside frame */
-  .app{display:flex;min-height:380px;background:var(--bg)}
-  .sb{width:200px;flex:none;background:#fff;border-right:1px solid var(--border);padding:10px}
-  .sb .logo-row{display:flex;align-items:center;gap:8px;padding:6px 8px 12px;border-bottom:1px solid var(--border);margin-bottom:8px}
-  .sb .logo-sq{height:26px;width:26px;border-radius:7px;background:var(--primary);display:grid;place-items:center;color:#fff;font-size:13px}
-  .sb .logo-tx{font-weight:700;font-size:14px}
-  .nav-i{display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:8px;color:var(--muted-fg);font-size:13px;margin:1px 0;cursor:default}
-  .nav-i .ic{width:15px;text-align:center;opacity:.8}
-  .nav-i.active{background:var(--primary);color:#fff;font-weight:600}
-  .nav-i.child{font-size:12px;padding-left:24px}
-  .nav-i.child.active{background:rgba(252,147,105,.16);color:var(--primary-d)}
-  .nav-new{position:relative}
-  .nav-new:after{content:"NEW";position:absolute;right:8px;top:7px;background:var(--green-fg);color:#fff;
-    font-size:8px;padding:1px 5px;border-radius:5px;font-family:"Anek Latin";letter-spacing:.04em}
-  .appmain{flex:1;padding:18px;overflow:auto}
+/* buttons */
+.btn{background:var(--ui-primary);color:#fff;border-radius:8px;padding:8px 16px;font-size:11.5px;font-weight:700;display:inline-flex;align-items:center;gap:7px;box-shadow:0 2px 5px rgba(252,147,105,.3)}
+.btn.gh{background:#fff;color:var(--ui-fg);border:1px solid var(--ui-bd2);box-shadow:none;font-weight:600}
+.btn.dis{background:#e3dcd8;color:#a9b8bd;box-shadow:none}
+.btnrow{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;align-items:center}
+.btnrow .lft{margin-right:auto;font-size:10.5px;color:var(--ui-mut)}
 
-  .pg-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;gap:12px}
-  .pg-head h3{font-size:19px}
-  .pg-head p{color:var(--muted-fg);font-size:12.5px;margin:2px 0 0}
+/* summary chips */
+.chipsum{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}
+.csum{background:var(--ui-accent);border:1px solid var(--ui-bd);border-radius:100px;padding:4px 11px;font-size:10.5px;color:var(--ui-fg);display:flex;align-items:center;gap:6px}
+.csum b{font-weight:700}
+.csum .ch{color:#a8481c;font-weight:700;font-size:9.5px}
 
-  .btn{border:none;border-radius:8px;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;
-    display:inline-flex;align-items:center;gap:7px;font-family:"Anek Latin"}
-  .btn-pri{background:var(--primary);color:#fff}
-  .btn-pri:hover{background:var(--primary-d)}
-  .btn-out{background:#fff;border:1px solid var(--input-border);color:var(--fg)}
-  .btn-out:hover{background:var(--muted-bg)}
-  .btn-ghost{background:transparent;color:var(--muted-fg)}
-  .btn-sm{padding:5px 10px;font-size:12px}
-  .btn-ico{padding:5px 8px;background:transparent;border:1px solid transparent;border-radius:7px;cursor:pointer;color:var(--muted-fg)}
-  .btn-ico:hover{background:var(--muted-bg);color:var(--fg)}
+/* tiles */
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.tile{border:1px solid var(--ui-bd);border-radius:9px;padding:9px 11px;background:#fff}
+.tile .tn{font-family:'Domine',serif;font-size:17px;font-weight:700;color:var(--ui-fg);line-height:1.1}
+.tile .tl{font-size:9.5px;color:var(--ui-mut);margin-top:2px}
+.tile.w .tn{color:#b7791f}
+.tile.g .tn{color:#16a34a}
 
-  .filters{display:flex;gap:8px;flex-wrap:wrap;background:#fff;border:1px solid var(--border);
-    border-radius:11px;padding:10px;margin-bottom:14px}
-  .sel,.inp{height:32px;border:1px solid var(--input-border);border-radius:7px;background:#fff;
-    padding:0 10px;font-size:12.5px;color:var(--fg);font-family:"Anek Latin"}
-  .inp{width:100%}
-  .sel{min-width:120px}
+/* preview table */
+.tbl{border:1px solid var(--ui-bd);border-radius:9px;overflow:hidden;background:#fff}
+.tr{display:flex;align-items:center;gap:9px;padding:6.5px 11px;font-size:10.5px;border-bottom:1px solid #f0eae6;color:var(--ui-fg)}
+.tr:last-child{border-bottom:none}
+.tr.hd{background:var(--ui-accent);font-size:8.5px;text-transform:uppercase;letter-spacing:.8px;font-weight:700;color:var(--ui-mut)}
+.cb{width:12px;height:12px;border-radius:3px;background:var(--ui-primary);color:#fff;font-size:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.cb.off{background:#fff;border:1px solid var(--ui-bd2)}
+.tr .c-ep{width:26px;color:var(--ui-mut);flex-shrink:0}
+.tr .c-ti{flex:1;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tr .c-md{width:40px;flex-shrink:0;color:var(--ui-mut)}
+.tr .c-st{width:112px;flex-shrink:0;text-align:right}
+.wtag{font-size:8.5px;font-weight:700;padding:1.5px 7px;border-radius:100px;background:rgba(251,191,36,.18);color:#8a6008}
+.gtag{font-size:8.5px;font-weight:700;padding:1.5px 7px;border-radius:100px;background:rgba(22,163,74,.14);color:#15803d}
 
-  table.tbl{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--border);border-radius:11px;overflow:hidden}
-  table.tbl th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted-fg);
-    font-weight:600;padding:10px 12px;border-bottom:1px solid var(--border);background:#f6f9f9}
-  table.tbl td{padding:10px 12px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle}
-  table.tbl tr:last-child td{border-bottom:none}
-  table.tbl tbody tr:hover{background:#f7fafa}
+/* success */
+.okwrap{text-align:center;padding:22px 0}
+.okmark{width:44px;height:44px;border-radius:50%;background:#16a34a;color:#fff;font-size:21px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
+.oktitle{font-family:'Domine',serif;font-size:15px;font-weight:600;color:var(--ui-fg)}
+.oksub{font-size:11px;color:var(--ui-mut);margin-top:3px}
 
-  .badge{display:inline-flex;align-items:center;gap:5px;border-radius:99px;padding:2px 9px;font-size:11px;font-weight:600;border:1px solid}
-  .b-gen{background:var(--gray-bg);color:var(--gray-fg);border-color:var(--gray-bd)}
-  .b-print{background:var(--blue-bg);color:var(--blue-fg);border-color:var(--blue-bd)}
-  .b-claim{background:var(--amber-bg);color:var(--amber-fg);border-color:var(--amber-bd)}
-  .b-redeem{background:var(--green-bg);color:var(--green-fg);border-color:var(--green-bd)}
-  .b-tvod{background:var(--purple-bg);color:var(--purple-fg);border-color:var(--purple-bd)}
-  .b-svod{background:var(--blue-bg);color:var(--blue-fg);border-color:var(--blue-bd)}
-  .b-pos{background:#ffe8db;color:var(--primary-d);border-color:#ffc9ad}
+/* ─── SCREEN LAYOUT ─── */
+.screens{display:flex;flex-direction:column;gap:64px}
+.screen-row{display:grid;grid-template-columns:300px 1fr;gap:34px;align-items:center}
+.screen-row.flip{grid-template-columns:1fr 300px}
+.screen-row.flip .screen-note{order:2}
+.screen-note .sn-num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:9px;background:rgba(252,145,106,.12);border:1px solid rgba(252,145,106,.3);color:var(--coral);font-size:12px;font-weight:800;margin-bottom:14px}
+.screen-note h3{font-family:'Domine',serif;font-size:20px;font-weight:600;color:#fff;margin-bottom:9px;line-height:1.28}
+.screen-note p{font-size:13.5px;color:var(--muted);line-height:1.68;margin-bottom:11px}
+.screen-note p:last-child{margin-bottom:0}
+.screen-note b{color:var(--cream);font-weight:600}
+.kv{border-left:2px solid rgba(252,145,106,.4);padding-left:12px;margin-top:14px}
+.kv div{font-size:11.5px;color:var(--muted);margin-bottom:4px}
+.kv div b{color:var(--coral);font-weight:600}
 
-  .codecell{display:inline-flex;align-items:center;gap:7px}
-  .codetxt{font-family:"JetBrains Mono";font-size:12.5px;letter-spacing:.02em}
+/* ─── BRANCH ─── */
+.branch{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.branch-col>.bc-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.bc-pill{font-size:11px;font-weight:700;padding:5px 13px;border-radius:100px;letter-spacing:.3px}
+.bc-pill.a{background:rgba(96,165,250,.12);color:#7db4f5;border:1px solid rgba(96,165,250,.28)}
+.bc-pill.b{background:rgba(146,164,171,.14);color:#a9bfc6;border:1px solid rgba(146,164,171,.28)}
+.bc-desc{font-size:12.5px;color:var(--muted);line-height:1.6;margin-top:12px}
 
-  .check{appearance:none;height:15px;width:15px;border:1.5px solid var(--input-border);border-radius:4px;cursor:pointer;position:relative;vertical-align:middle}
-  .check:checked{background:var(--primary);border-color:var(--primary)}
-  .check:checked:after{content:"✓";color:#fff;font-size:11px;position:absolute;left:2px;top:-2px}
+/* ─── FLOW DIAGRAM ─── */
+.fd{display:flex;justify-content:center;gap:0;flex-wrap:wrap;align-items:flex-start}
+.fd-col{display:flex;flex-direction:column;align-items:center;min-width:250px;max-width:290px;flex:1}
+.fd-box{width:100%;padding:12px 15px;border-radius:12px;text-align:center;font-size:12.5px;font-weight:600;border:1px solid}
+.fd-box small{display:block;font-size:10.5px;font-weight:400;opacity:.72;margin-top:3px}
+.fd-box.start{background:rgba(252,145,106,.12);border-color:rgba(252,145,106,.4);color:var(--coral)}
+.fd-box.act{background:var(--card);border-color:var(--border-2);color:var(--cream)}
+.fd-box.dec{background:rgba(221,169,113,.09);border-color:rgba(221,169,113,.32);color:var(--gold)}
+.fd-box.suc{background:rgba(74,222,128,.1);border-color:rgba(74,222,128,.3);color:var(--green)}
+.fd-box.skip{background:rgba(146,164,171,.09);border-color:rgba(146,164,171,.25);color:#a9bfc6;border-style:dashed}
+.fd-arr{width:2px;height:26px;background:linear-gradient(180deg,rgba(252,145,106,.5),rgba(252,145,106,.15));position:relative}
+.fd-arr::after{content:'';position:absolute;bottom:-6px;left:-4px;border-top:7px solid rgba(252,145,106,.5);border-left:5px solid transparent;border-right:5px solid transparent}
+.fd-lbl{font-size:10px;color:var(--muted);font-weight:600;letter-spacing:.4px;padding:5px 0}
+.fd-two{display:flex;gap:14px;width:100%}
+.fd-two>div{flex:1;display:flex;flex-direction:column;align-items:center}
 
-  /* dialog */
-  .ov{position:fixed;inset:0;background:rgba(15,34,46,.7);z-index:60;display:none;align-items:center;justify-content:center;padding:24px}
-  .ov.show{display:flex}
-  .dlg{background:#fff;border-radius:14px;max-width:480px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,.3);overflow:hidden}
-  .dlg .h{padding:20px 22px 8px}
-  .dlg .h h3{font-size:18px}
-  .dlg .h p{color:var(--muted-fg);font-size:13px;margin:5px 0 0}
-  .dlg .bdy{padding:6px 22px 8px}
-  .dlg .ft{display:flex;justify-content:flex-end;gap:9px;padding:14px 22px 20px}
-  .field{margin:12px 0}
-  .field label{display:block;font-size:12.5px;font-weight:600;margin-bottom:5px}
-  .hint{font-size:11.5px;color:var(--muted-fg);margin-top:4px}
-  .infobox{background:#f0f6f6;border:1px solid var(--border);border-radius:9px;padding:10px 12px;font-size:12.5px;margin:10px 0}
-  .infobox.green{background:var(--green-bg);border-color:var(--green-bd);color:var(--green-fg)}
-  .infobox.amber{background:var(--amber-bg);border-color:var(--amber-bd);color:var(--amber-fg)}
+/* ─── TABLE ─── */
+.cmp{width:100%;border-collapse:collapse;background:var(--bg-2);border:1px solid var(--border);border-radius:12px;overflow:hidden;font-size:14px}
+.cmp thead th{text-align:left;font-size:10.5px;letter-spacing:1.2px;text-transform:uppercase;font-weight:700;color:var(--muted);padding:14px 20px;background:rgba(244,233,226,.04);border-bottom:1px solid var(--border)}
+.cmp thead th:not(:first-child){text-align:center;width:22%}
+.cmp td{padding:13px 20px;border-bottom:1px solid var(--border);color:var(--muted)}
+.cmp tr:last-child td{border-bottom:none}
+.cmp td:first-child{color:var(--cream);font-weight:500}
+.cmp td:not(:first-child){text-align:center;font-weight:600}
+.was{color:var(--red)}
+.now{color:var(--green)}
 
-  /* toast */
-  #toasts{position:fixed;right:20px;bottom:20px;z-index:80;display:flex;flex-direction:column;gap:10px}
-  .toast{min-width:280px;max-width:360px;background:#fff;border:1px solid var(--border);border-radius:11px;
-    box-shadow:0 12px 30px rgba(0,0,0,.18);padding:13px 15px;display:flex;gap:11px;align-items:flex-start;
-    animation:slidein .25s ease}
-  @keyframes slidein{from{transform:translateY(12px);opacity:0}to{transform:none;opacity:1}}
-  .toast .ti{height:22px;width:22px;border-radius:50%;display:grid;place-items:center;font-size:13px;flex:none;color:#fff}
-  .toast.ok .ti{background:var(--green-fg)} .toast.err .ti{background:var(--red-fg)} .toast.info .ti{background:var(--blue-fg)}
-  .toast .tt{font-weight:600;font-size:13.5px} .toast .td{font-size:12.5px;color:var(--muted-fg);margin-top:2px}
+/* ─── CARDS ─── */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.pcard{background:var(--bg-2);border:1px solid var(--border);border-radius:14px;padding:24px 26px}
+.pcard h4{font-family:'Domine',serif;font-size:16px;font-weight:600;color:#fff;margin-bottom:14px;display:flex;align-items:center;gap:9px}
+.pcard .mk{width:21px;height:21px;border-radius:50%;font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.mk.in{background:rgba(74,222,128,.16);color:var(--green);border:1px solid rgba(74,222,128,.35)}
+.mk.out{background:rgba(221,169,113,.14);color:var(--gold);border:1px solid rgba(221,169,113,.32)}
+.pcard ul{list-style:none}
+.pcard li{font-size:13px;color:var(--muted);padding-left:18px;position:relative;margin-bottom:9px;line-height:1.55}
+.pcard li::before{content:'';position:absolute;left:2px;top:8px;width:5px;height:5px;border-radius:50%;background:var(--gold)}
+.pcard li b{color:var(--cream);font-weight:600}
 
-  .demobar{display:flex;flex-wrap:wrap;gap:9px;margin-top:14px}
+/* ─── DECISIONS ─── */
+.asks{display:grid;gap:12px}
+.askrow{background:var(--bg-2);border:1px solid var(--border);border-radius:12px;padding:18px 22px 18px 58px;position:relative}
+.askrow .an{position:absolute;left:20px;top:18px;width:24px;height:24px;border-radius:50%;border:1.5px solid rgba(221,169,113,.5);color:var(--gold);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.askrow h4{font-size:14.5px;font-weight:600;color:#fff;margin-bottom:4px}
+.askrow p{font-size:13px;color:var(--muted);line-height:1.6}
+.askrow .rec{color:var(--green);font-weight:600}
 
-  /* portal popup mock */
-  .portal-fr{background:var(--portal-bg);border-radius:12px;padding:26px;display:grid;place-items:center}
-  .ppop{background:var(--navy-2);color:#fff;border:1px solid rgba(255,255,255,.1);border-radius:14px;
-    padding:24px;max-width:380px;width:100%}
-  .ppop h4{font-size:18px;margin-bottom:6px}
-  .ppop .sub{color:rgba(255,255,255,.7);font-size:13px;margin-bottom:16px}
-  .ppop .row{display:flex;justify-content:space-between;gap:14px;font-size:13px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.08)}
-  .ppop .row .k{color:rgba(255,255,255,.6)}
-  .ppop .cta{margin-top:18px;width:100%;background:linear-gradient(90deg,var(--portal-primary),#f57a48);
-    color:var(--navy);border:none;border-radius:9px;padding:11px;font-weight:700;cursor:pointer}
+/* ─── CALLOUT ─── */
+.call{border-radius:12px;padding:18px 22px;font-size:13.5px;line-height:1.65;border:1px solid var(--border);background:var(--bg-2);margin:26px 0}
+.call.hi{border-left:3px solid var(--coral)}
+.call.g{border-left:3px solid var(--green)}
+.call.o{border-left:3px solid var(--gold)}
+.call b{color:var(--cream);display:block;margin-bottom:4px;font-weight:600}
+.call span{color:var(--muted)}
 
-  /* email mock */
-  .email{background:#f4f1ef;border-radius:12px;padding:18px;border:1px solid var(--border)}
-  .email .card-e{background:#fff;border-radius:10px;max-width:460px;margin:0 auto;overflow:hidden;box-shadow:var(--shadow)}
-  .email .hdr-e{background:var(--navy);height:64px;display:grid;place-items:center;color:#fff;font-family:"Domine"}
-  .email .bd-e{padding:22px}
-  .email .bd-e h4{font-size:16px;margin-bottom:12px}
-  .email .grey-e{background:#f6f7f7;border-radius:8px;padding:12px;margin:14px 0;font-size:13px}
-  .email .cta-e{display:inline-block;background:var(--navy);color:#fff;padding:11px 22px;border-radius:7px;font-weight:600;font-size:13px;margin:6px 0}
-  .email .ft-e{color:var(--muted-fg);font-size:12px;margin-top:14px}
-  .pdfchip{display:inline-flex;align-items:center;gap:7px;background:#fdecec;color:#b3261e;border:1px solid #f7c6c2;
-    padding:6px 11px;border-radius:8px;font-size:12px;margin-top:8px}
+/* ─── FOOTER ─── */
+footer{border-top:1px solid var(--border);padding:34px 24px 60px;text-align:center;color:var(--muted);font-size:12.5px}
+footer .fb{font-family:'Domine',serif;color:var(--coral);font-weight:700;font-size:14px;margin-bottom:6px}
 
-  /* diagram modal */
-  .dmodal{position:fixed;inset:0;background:rgba(15,34,46,.93);z-index:70;display:none;flex-direction:column}
-  .dmodal.show{display:flex}
-  .dmodal .dhead{display:flex;align-items:center;gap:12px;padding:14px 22px;border-bottom:1px solid rgba(255,255,255,.12);color:#fff}
-  .dmodal .dhead h3{font-size:17px}
-  .dtabs{display:flex;gap:6px;flex:1;flex-wrap:wrap}
-  .dtab{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.15);
-    padding:7px 14px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;font-family:"Anek Latin"}
-  .dtab.active{background:var(--primary);color:var(--navy);border-color:var(--primary)}
-  .dclose{background:rgba(255,255,255,.12);color:#fff;border:none;height:36px;width:36px;border-radius:9px;cursor:pointer;font-size:18px}
-  .dbody{flex:1;overflow:auto;padding:26px;display:grid;place-items:start center}
-  .dpane{display:none;width:100%;max-width:1100px;background:#fff;border-radius:14px;padding:26px}
-  .dpane.active{display:block}
-  .dpane h4{font-size:18px;margin-bottom:6px;color:var(--navy)}
-  .dpane p.cap{color:var(--muted-fg);font-size:13px;margin:0 0 18px}
-  .mermaid{display:flex;justify-content:center}
+/* ─── FADE ─── */
+.fade-up{opacity:0;transform:translateY(22px);transition:opacity .55s ease,transform .55s ease}
+.fade-up.visible{opacity:1;transform:translateY(0)}
 
-  .matrix{width:100%;border-collapse:collapse;font-size:13px}
-  .matrix th,.matrix td{border:1px solid var(--border);padding:9px 12px;text-align:center}
-  .matrix th{background:#f6f9f9;font-family:"Domine";font-size:12.5px}
-  .matrix td.lbl{text-align:left;font-weight:600;background:#fafcfc}
-  .yes{color:var(--green-fg);font-weight:700}.no{color:#bbb}
-
-  .legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
-  .legend .li{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--muted-fg)}
-
-  .kbd{font-family:"JetBrains Mono";background:var(--muted-bg);border:1px solid var(--border);border-radius:5px;padding:1px 6px;font-size:12px}
-  .scope-out{opacity:.55}
-  .footer{text-align:center;color:var(--muted-fg);font-size:12.5px;padding:30px 0 10px}
+@media(max-width:900px){
+  .screen-row,.screen-row.flip{grid-template-columns:1fr;gap:22px}
+  .screen-row.flip .screen-note{order:0}
+  .branch,.grid2,.tiles{grid-template-columns:1fr}
+  .win-body{min-height:0}
+  .side{display:none}
+  .fd-col{max-width:100%}
+}
 </style>
 </head>
 <body>
 
-<!-- ================= TOP BAR ================= -->
-<div class="topbar">
-  <div class="brand">
-    <div class="logo">▶</div>
-    <div>
-      <div class="title">Chinmaya Clix</div>
-      <div class="sub">Coupon Card &amp; POS Redemption — Feature KT</div>
+<!-- ══════════ HERO ══════════ -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-pill">Proposed redesign — for approval</div>
+  <h1>Bulk Import,<br><span>Reimagined</span></h1>
+  <p class="hero-sub">
+    Three linked spreadsheets and 39 columns become two dropdowns and one small file.
+    Here is every screen, exactly as the content team will see it.
+  </p>
+  <div class="hero-meta">
+    <span class="meta-tag m-c">✓ Pick series from a list</span>
+    <span class="meta-tag m-o">✓ Season step only when needed</span>
+    <span class="meta-tag m-g">✓ One file, 2 required columns</span>
+    <span class="meta-tag m-n">✓ Preview before anything saves</span>
+  </div>
+</section>
+
+<!-- ══════════ NAV ══════════ -->
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="nav-logo">▶ Clix CMS</div>
+    <a class="nav-link" href="#journey">The Journey</a>
+    <a class="nav-link" href="#screens">Screens</a>
+    <a class="nav-link" href="#branch">Seasons vs Flat</a>
+    <a class="nav-link" href="#logic">Selection Logic</a>
+    <a class="nav-link" href="#compare">Before / After</a>
+    <a class="nav-link" href="#scope">Scope</a>
+    <a class="nav-link" href="#decisions">Decisions</a>
+  </div>
+</nav>
+
+<!-- ══════════ JOURNEY ══════════ -->
+<section id="journey" class="page-section">
+  <div class="sec-head fade-up">
+    <div class="sec-tag">The Journey</div>
+    <h2 class="sec-title">Four Choices, One File</h2>
+    <p class="sec-desc">The operator never types a series name, a season number or an episode number. Every one of those is chosen from what already exists in the platform.</p>
+  </div>
+
+  <div class="journey-wrap fade-up">
+    <div class="journey-step">
+      <div class="journey-icon-wrap"><div class="journey-icon ji-1">📚</div><div class="journey-num">1</div></div>
+      <div class="journey-label">Choose Series</div>
+      <div class="journey-sub">Searchable list of existing series</div>
+    </div>
+    <div class="journey-arrow"><div><div class="j-arr-line"></div></div></div>
+
+    <div class="journey-step">
+      <div class="journey-icon-wrap"><div class="journey-icon ji-2">🗂️</div><div class="journey-num">2</div></div>
+      <div class="journey-label">Choose Season</div>
+      <div class="journey-sub">Appears only for series that use seasons</div>
+      <div class="j-opt">CONDITIONAL</div>
+    </div>
+    <div class="journey-arrow"><div><div class="j-arr-line"></div></div></div>
+
+    <div class="journey-step">
+      <div class="journey-icon-wrap"><div class="journey-icon ji-3">📄</div><div class="journey-num">3</div></div>
+      <div class="journey-label">Upload File</div>
+      <div class="journey-sub">One spreadsheet listing the episodes</div>
+    </div>
+    <div class="journey-arrow"><div><div class="j-arr-line"></div></div></div>
+
+    <div class="journey-step">
+      <div class="journey-icon-wrap"><div class="journey-icon ji-4">👁️</div><div class="journey-num">4</div></div>
+      <div class="journey-label">Review</div>
+      <div class="journey-sub">Check the list, untick anything unwanted</div>
+    </div>
+    <div class="journey-arrow"><div><div class="j-arr-line"></div></div></div>
+
+    <div class="journey-step">
+      <div class="journey-icon-wrap"><div class="journey-icon ji-5">✓</div><div class="journey-num">5</div></div>
+      <div class="journey-label">Confirm</div>
+      <div class="journey-sub">Episodes are added to the chosen season</div>
     </div>
   </div>
-  <div class="spacer"></div>
-  <button class="flowbtn" onclick="openDiagrams()">🗺️ View Flowchart &amp; Diagrams</button>
-</div>
+</section>
 
-<div class="wrap">
-  <!-- ============== DOC NAV ============== -->
-  <nav class="docnav" id="docnav">
-    <div class="grp">Concept</div>
-    <a href="#overview">Overview</a>
-    <a href="#lifecycle">Code lifecycle</a>
-    <a href="#roles">Roles &amp; access</a>
-    <div class="grp">Screens</div>
-    <a href="#s-menu">1 · POS menu + batch list</a>
-    <a href="#s-create">2 · Create batch</a>
-    <a href="#s-detail">3 · Batch detail &amp; codes</a>
-    <a href="#s-assign">4 · Assign to user</a>
-    <a href="#s-toasts">5 · Blocking &amp; toasts</a>
-    <a href="#s-orders">6 · Orders integration</a>
-    <a href="#s-recon">7 · Reconciliation</a>
-    <a href="#s-popup">8 · Customer popup</a>
-    <a href="#s-email">9 · Assignment emails</a>
-    <div class="grp">Reference</div>
-    <a href="#datamodel">Data model</a>
-    <a href="#edge">Edge cases &amp; rules</a>
-    <a href="#scope">Scope &amp; decisions</a>
-  </nav>
+<hr class="section-divider">
 
-  <!-- ============== CONTENT ============== -->
-  <main class="content">
+<!-- ══════════ SCREENS ══════════ -->
+<section id="screens" class="page-section">
+  <div class="sec-head fade-up">
+    <div class="sec-tag o">Screen by Screen</div>
+    <h2 class="sec-title">Every Step, As It Will Look</h2>
+    <p class="sec-desc">Six screens from opening the page to a finished upload. Each one shows the exact controls and what the operator sees at that moment.</p>
+  </div>
 
-    <!-- HERO -->
-    <div class="hero">
-      <h1>Coupon Card &amp; Point-of-Sale Redemption</h1>
-      <p>A physical sales channel for Chinmaya Clix. Pre-generated, non-guessable cards unlock a mapped product
-         (a TVOD series or an SVOD plan). Cards are tracked end-to-end — <b>generated → printed → assigned →
-         redeemed</b> — so stock and revenue reconcile exactly. This page is the developer KT: every screen,
-         every case, and the full diagram set.</p>
-      <div class="pills">
-        <span class="pill">🆕 New CMS "POS" module</span>
-        <span class="pill">🔐 New POS role</span>
-        <span class="pill">🎟️ Batch + per-code lifecycle</span>
-        <span class="pill">📧 Email + invoice on assign</span>
-        <span class="pill">🍿 Auto-grant + portal popup</span>
-        <span class="pill">📊 Reconciliation in scope</span>
-        <span class="pill">₹ INR only · v1</span>
+  <div class="screens">
+
+    <!-- ── SCREEN 1 ── -->
+    <div class="screen-row fade-up">
+      <div class="screen-note">
+        <div class="sn-num">1</div>
+        <h3>Opening the page</h3>
+        <p>Three numbered steps, revealed in order. Only <b>Step 1</b> is active — the rest are greyed out until the choice above them is made, so there is no way to start in the wrong place.</p>
+        <div class="kv">
+          <div><b>Active:</b> Select series</div>
+          <div><b>Locked:</b> Season, Upload</div>
+        </div>
+      </div>
+      <div class="win">
+        <div class="win-bar"><span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span><span class="win-url">clix-cms · Content › Bulk Import</span></div>
+        <div class="win-body">
+          <div class="side">
+            <div class="side-brand">▶ Clix CMS</div>
+            <div class="side-i">◻ Dashboard</div>
+            <div class="side-sec">Content</div>
+            <div class="side-i">◻ Videos</div>
+            <div class="side-i">◻ Audio</div>
+            <div class="side-i">◻ Series</div>
+            <div class="side-i">◻ Speakers</div>
+            <div class="side-i on">◼ Bulk Import</div>
+            <div class="side-sec">Users</div>
+            <div class="side-i">◻ Subscribers</div>
+          </div>
+          <div class="main">
+            <div class="ui-h">Bulk Import</div>
+            <div class="ui-sub">Add multiple episodes to a series in one go</div>
+
+            <div class="sb active">
+              <div class="sb-head"><span class="sb-n">1</span><span class="sb-t">Select series</span></div>
+              <div class="sel ph">Choose a series… <span class="chev">▼</span></div>
+            </div>
+
+            <div class="sb dim">
+              <div class="sb-head"><span class="sb-n">2</span><span class="sb-t">Select season</span><span class="sb-hint">Select a series first</span></div>
+              <div class="sel dis">— <span class="chev">▼</span></div>
+            </div>
+
+            <div class="sb dim">
+              <div class="sb-head"><span class="sb-n">3</span><span class="sb-t">Upload episodes file</span><span class="sb-hint">Locked</span></div>
+              <div class="drop"><div class="ic">⬆</div><div class="t1">Drag &amp; drop your CSV</div><div class="t2">or click to browse</div></div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- OVERVIEW -->
-    <section id="overview">
-      <div class="sec-h"><span class="sec-num">§1</span><h2>Overview</h2></div>
-      <p class="lead">Today Clix is online-only. Many devotees buy in person (Chinmaya Vani store, CCMT, events).
-        This feature lets staff sell Clix access over the counter: a card carries a unique code, an admin binds it
-        to the customer's email and the system raises an invoice, and the customer activates by simply signing in —
-        access unlocks automatically.</p>
-      <div class="grid2">
-        <div class="note ok">
-          <h4>🎯 What we are building (v1)</h4>
-          <ul>
-            <li>A new <b>POS</b> module in the CMS sidebar.</li>
-            <li><b>Batch generation</b> of N unique codes mapped to one series or plan.</li>
-            <li><b>Per-code</b> status list with mark-as-printed (multi-select).</li>
-            <li><b>Assign</b> a printed code to a customer email → invoice (INR) + email with PDF.</li>
-            <li><b>Auto-grant</b> access; <b>portal popup</b> notifies the customer (gifting pattern).</li>
-            <li><b>Orders</b> visibility + a <b>reconciliation</b> report with export.</li>
-            <li>A dedicated <b>POS role</b> limited to the POS page.</li>
-          </ul>
-        </div>
-        <div class="note">
-          <h4>🧱 Reuse — we are not starting from scratch</h4>
-          <ul>
-            <li><b>Gifting feature</b> is the reference pattern: email-bound recipients, <code>AWAITING_CLAIM → REDEEMED</code>,
-              idempotent row-locked fulfillment, invoice + receipt, the <code>GiftPopup</code>.</li>
-            <li><b>Entitlement</b>: same <code>create_purchase</code> / gift-subscription paths that grant access today.</li>
-            <li><b>Orders page</b> already lists gifts via a dedicated source — we add a "POS Card" source the same way.</li>
-            <li><b>Emails</b>: clone <code>send_gift_received_*</code> (Hari Om house style).</li>
-            <li><b>Toasts / errors</b>: <code>sonner</code> + <code>getApiErrorMessage</code>; block-rules like <code>check_block_rules</code>.</li>
-          </ul>
+    <!-- ── SCREEN 2 ── -->
+    <div class="screen-row flip fade-up">
+      <div class="win">
+        <div class="win-bar"><span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span><span class="win-url">clix-cms · Content › Bulk Import</span></div>
+        <div class="win-body">
+          <div class="side">
+            <div class="side-brand">▶ Clix CMS</div>
+            <div class="side-i">◻ Dashboard</div>
+            <div class="side-sec">Content</div>
+            <div class="side-i">◻ Videos</div>
+            <div class="side-i">◻ Audio</div>
+            <div class="side-i">◻ Series</div>
+            <div class="side-i">◻ Speakers</div>
+            <div class="side-i on">◼ Bulk Import</div>
+            <div class="side-sec">Users</div>
+            <div class="side-i">◻ Subscribers</div>
+          </div>
+          <div class="main">
+            <div class="ui-h">Bulk Import</div>
+            <div class="ui-sub">Add multiple episodes to a series in one go</div>
+            <div class="sb active">
+              <div class="sb-head"><span class="sb-n">1</span><span class="sb-t">Select series</span></div>
+              <div class="sel open">Choose a series… <span class="chev">▲</span></div>
+              <div class="menu">
+                <div class="menu-search">🔍 <span>bhaga</span><span class="cur"></span></div>
+                <div class="opt hi"><span class="nm">Bhagavad Gita</span><span class="bdg se">SEASONS</span><span class="ct">3 seasons</span></div>
+                <div class="opt"><span class="nm">Bhagavad Gita — Chapter Talks</span><span class="bdg fl">FLAT</span><span class="ct">41 episodes</span></div>
+                <div class="opt"><span class="nm">Bhagavad Gita for Children</span><span class="bdg se">SEASONS</span><span class="ct">2 seasons</span></div>
+              </div>
+            </div>
+            <div class="sb dim">
+              <div class="sb-head"><span class="sb-n">2</span><span class="sb-t">Select season</span><span class="sb-hint">Select a series first</span></div>
+            </div>
+          </div>
         </div>
       </div>
-    </section>
+      <div class="screen-note">
+        <div class="sn-num">2</div>
+        <h3>Choosing the series</h3>
+        <p>The operator types a few letters and the list filters instantly. Every entry shows whether that series is organised into <b>seasons</b> or is a <b>flat</b> list of episodes, plus how much is already in it.</p>
+        <p>This badge is what decides the next step — and the operator can see it before they commit.</p>
+        <div class="kv">
+          <div><b>Search:</b> filters as you type</div>
+          <div><b>Badge:</b> Seasons or Flat</div>
+          <div><b>Count:</b> what is already there</div>
+        </div>
+      </div>
+    </div>
 
-    <!-- LIFECYCLE -->
-    <section id="lifecycle">
-      <div class="sec-h"><span class="sec-num">§2</span><h2>Code lifecycle (states)</h2></div>
-      <p class="lead">Simplified from the spec's 6 states. No <i>Allocated</i> (single store), no <i>Voided / Refunded / Expired</i> (out of scope for v1).
-        The one nuance: assigning to a <b>new</b> email parks the code at <b>Awaiting claim</b> until the customer registers; assigning to an
-        <b>existing</b> user grants access immediately (<b>Redeemed</b>).</p>
-      <div class="card" style="padding:22px">
-        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;font-size:14px">
-          <span class="badge b-gen">Generated</span> <span>→</span>
-          <span class="badge b-print">Printed</span> <span>→</span>
-          <span class="badge b-claim">Assigned · Awaiting&nbsp;claim</span> <span>→</span>
-          <span class="badge b-redeem">Redeemed · Active</span>
-          <span style="color:var(--muted-fg);margin-left:8px">(existing user skips straight to Redeemed)</span>
-        </div>
-        <div class="legend" style="margin-top:16px">
-          <span class="li"><span class="badge b-gen">Generated</span> code created in a batch, not yet printed</span>
-          <span class="li"><span class="badge b-print">Printed</span> card printed &amp; verified — now assignable</span>
-          <span class="li"><span class="badge b-claim">Awaiting claim</span> bound to a not-yet-registered email</span>
-          <span class="li"><span class="badge b-redeem">Redeemed</span> access granted (terminal · irreversible)</span>
+    <!-- ── SCREEN 3 ── -->
+    <div class="screen-row fade-up">
+      <div class="screen-note">
+        <div class="sn-num">3</div>
+        <h3>Choosing the season</h3>
+        <p>Because <b>Bhagavad Gita</b> uses seasons, Step 2 unlocks and lists that series' seasons with their current episode counts.</p>
+        <p>If the season does not exist yet, it can be created right here without leaving the page.</p>
+        <div class="kv">
+          <div><b>Only real seasons</b> are listed</div>
+          <div><b>＋ New season</b> creates one inline</div>
         </div>
       </div>
-      <div class="note"><h4>🔁 Why the split matters</h4>
-        Reconciliation (§7) explicitly watches <b>Printed − Assigned</b> (unsold stock) and <b>Assigned − Redeemed</b>
-        (paid but not yet activated). Collapsing the two assign states would hide the "paid but not activated" gap.
-        <span class="frtag">FR-7.3</span><span class="frtag">§8</span></div>
-    </section>
-
-    <!-- ROLES -->
-    <section id="roles">
-      <div class="sec-h"><span class="sec-num">§3</span><h2>Roles &amp; access</h2></div>
-      <p class="lead">A new <b>POS</b> role sees <i>only</i> the POS page and can create batches, generate codes and mark printed.
-        <b>Assigning</b> a code (binding to a customer, raising the invoice, granting access) is restricted to <b>Owner / Admin</b>.</p>
-      <div class="card" style="padding:6px 18px 18px">
-        <table class="matrix" style="margin-top:14px">
-          <tr><th style="text-align:left">Capability</th><th>POS</th><th>Owner / Content&nbsp;Admin</th><th>Other CMS roles</th></tr>
-          <tr><td class="lbl">See POS module</td><td class="yes">✔</td><td class="yes">✔</td><td class="no">—</td></tr>
-          <tr><td class="lbl">Create batch + generate codes</td><td class="yes">✔</td><td class="yes">✔</td><td class="no">—</td></tr>
-          <tr><td class="lbl">Mark codes printed</td><td class="yes">✔</td><td class="yes">✔</td><td class="no">—</td></tr>
-          <tr><td class="lbl">Assign code to user (+ invoice)</td><td class="no">—</td><td class="yes">✔</td><td class="no">—</td></tr>
-          <tr><td class="lbl">View Orders / Reconciliation</td><td class="no">—</td><td class="yes">✔</td><td class="no">view-only varies</td></tr>
-          <tr><td class="lbl">Rest of CMS (videos, users…)</td><td class="no">—</td><td class="yes">✔</td><td class="no">per role</td></tr>
-        </table>
+      <div class="win">
+        <div class="win-bar"><span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span><span class="win-url">clix-cms · Content › Bulk Import</span></div>
+        <div class="win-body">
+          <div class="side">
+            <div class="side-brand">▶ Clix CMS</div>
+            <div class="side-i">◻ Dashboard</div>
+            <div class="side-sec">Content</div>
+            <div class="side-i">◻ Videos</div>
+            <div class="side-i">◻ Audio</div>
+            <div class="side-i">◻ Series</div>
+            <div class="side-i">◻ Speakers</div>
+            <div class="side-i on">◼ Bulk Import</div>
+            <div class="side-sec">Users</div>
+            <div class="side-i">◻ Subscribers</div>
+          </div>
+          <div class="main">
+            <div class="ui-h">Bulk Import</div>
+            <div class="ui-sub">Add multiple episodes to a series in one go</div>
+            <div class="sb done">
+              <div class="sb-head"><span class="sb-n">✓</span><span class="sb-t">Series</span><span class="tagx">Seasons</span></div>
+              <div class="sel">Bhagavad Gita <span class="chev">▼</span></div>
+            </div>
+            <div class="sb active">
+              <div class="sb-head"><span class="sb-n">2</span><span class="sb-t">Select season</span></div>
+              <div class="sel open">Choose a season… <span class="chev">▲</span></div>
+              <div class="menu">
+                <div class="opt"><span class="nm">Season 1 — The Beginning</span><span class="ct">12 episodes</span></div>
+                <div class="opt hi"><span class="nm">Season 2 — Karma Yoga</span><span class="ct">8 episodes</span></div>
+                <div class="opt"><span class="nm">Season 3 — Dhyana</span><span class="ct">empty</span></div>
+                <div class="opt add"><span class="nm">＋ Create a new season</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="note"><h4>🛠️ Implementation</h4>
-        New role in <code>SystemRoles</code> + a <code>PosPermissions</code> class (<code>pos.view</code>, <code>pos.create</code>, <code>pos.mark_printed</code>, <code>pos.assign</code>) in
-        <code>backend/app/models/role.py</code>; backend endpoints gated by <code>require_permission(...)</code>; frontend <code>usePosPermissions()</code> hook + sidebar gating.
-        <span class="frtag">FR-4.1</span><span class="frtag">NFR · access control</span>
-      </div>
-    </section>
+    </div>
 
-    <!-- SCREEN 1 -->
-    <section id="s-menu">
-      <div class="sec-h"><span class="sec-num">Screen 1</span><h2>POS menu &amp; batch list</h2></div>
-      <p class="lead">A new top-level <b>POS</b> item in the sidebar (with a "Create batch" button on the landing page).
-        The list shows every batch with its content, counts and progress.</p>
-      <div class="browser">
-        <div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
-          <span class="url">clix-admin.chinmayamission.com/dashboard/pos</span><span class="tag-mock">CMS · mockup</span></div>
-        <div class="app">
+    <!-- ── SCREEN 4 ── -->
+    <div class="screen-row flip fade-up">
+      <div class="win">
+        <div class="win-bar"><span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span><span class="win-url">clix-cms · Content › Bulk Import</span></div>
+        <div class="win-body">
+          <div class="side">
+            <div class="side-brand">▶ Clix CMS</div>
+            <div class="side-i">◻ Dashboard</div>
+            <div class="side-sec">Content</div>
+            <div class="side-i">◻ Videos</div>
+            <div class="side-i">◻ Audio</div>
+            <div class="side-i">◻ Series</div>
+            <div class="side-i">◻ Speakers</div>
+            <div class="side-i on">◼ Bulk Import</div>
+            <div class="side-sec">Users</div>
+            <div class="side-i">◻ Subscribers</div>
+          </div>
+          <div class="main">
+            <div class="ui-h">Bulk Import</div>
+            <div class="chipsum" style="margin-top:12px">
+              <span class="csum">📚 <b>Bhagavad Gita</b> <span class="ch">Change</span></span>
+              <span class="csum">🗂️ <b>Season 2 — Karma Yoga</b> <span class="ch">Change</span></span>
+            </div>
+            <div class="sb active">
+              <div class="sb-head"><span class="sb-n">3</span><span class="sb-t">Upload episodes file</span><span class="sb-hint">Download template</span></div>
+              <div class="filerow">
+                <span class="fi">✓</span>
+                <span><span class="fn">episodes.csv</span><br><span class="fm">24 rows found · 18.4 KB</span></span>
+                <span class="fx">✕</span>
+              </div>
+            </div>
+            <div class="btnrow">
+              <span class="lft">Nothing is saved yet</span>
+              <span class="btn gh">Cancel</span>
+              <span class="btn">Review 24 episodes →</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="screen-note">
+        <div class="sn-num">4</div>
+        <h3>Uploading the file</h3>
+        <p>Both choices collapse into small summary chips at the top, each with a <b>Change</b> link — always visible, so there is never any doubt about where the episodes are going.</p>
+        <p>The file needs only two filled columns: the <b>episode title</b> and the <b>media file address</b>. A matching template is one click away.</p>
+        <div class="kv">
+          <div><b>Row count</b> confirmed on upload</div>
+          <div><b>Still nothing saved</b> at this point</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SCREEN 5 ── -->
+    <div class="screen-row fade-up">
+      <div class="screen-note">
+        <div class="sn-num">5</div>
+        <h3>Reviewing before it saves</h3>
+        <p>Every episode that will be created is listed with the number it will receive. Anything questionable is flagged in place — a duplicate title, a missing thumbnail — without blocking the rest.</p>
+        <p>Rows can be unticked. Twenty-four rows in the file, twenty-three added: entirely the operator's choice.</p>
+        <div class="kv">
+          <div><b>Warnings</b> do not block the upload</div>
+          <div><b>Errors</b> would, and are listed the same way</div>
+          <div><b>Untick</b> anything to leave it out</div>
+        </div>
+      </div>
+      <div class="win">
+        <div class="win-bar"><span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span><span class="win-url">clix-cms · Content › Bulk Import › Review</span></div>
+        <div class="win-body">
+          <div class="side">
+            <div class="side-brand">▶ Clix CMS</div>
+            <div class="side-i">◻ Dashboard</div>
+            <div class="side-sec">Content</div>
+            <div class="side-i">◻ Videos</div>
+            <div class="side-i">◻ Audio</div>
+            <div class="side-i">◻ Series</div>
+            <div class="side-i">◻ Speakers</div>
+            <div class="side-i on">◼ Bulk Import</div>
+            <div class="side-sec">Users</div>
+            <div class="side-i">◻ Subscribers</div>
+          </div>
+          <div class="main">
+            <div class="chipsum">
+              <span class="csum">📚 <b>Bhagavad Gita</b></span>
+              <span class="csum">🗂️ <b>Season 2</b></span>
+            </div>
+            <div class="tiles">
+              <div class="tile g"><div class="tn">24</div><div class="tl">Ready to add</div></div>
+              <div class="tile w"><div class="tn">2</div><div class="tl">Warnings</div></div>
+              <div class="tile"><div class="tn">0</div><div class="tl">Errors</div></div>
+            </div>
+            <div class="tbl">
+              <div class="tr hd"><span style="width:12px"></span><span class="c-ep">Ep</span><span class="c-ti">Episode title</span><span class="c-md">Type</span><span class="c-st">Status</span></div>
+              <div class="tr"><span class="cb">✓</span><span class="c-ep">9</span><span class="c-ti">The Nature of Action</span><span class="c-md">Video</span><span class="c-st"><span class="gtag">READY</span></span></div>
+              <div class="tr"><span class="cb">✓</span><span class="c-ep">10</span><span class="c-ti">Renunciation Explained</span><span class="c-md">Video</span><span class="c-st"><span class="gtag">READY</span></span></div>
+              <div class="tr"><span class="cb">✓</span><span class="c-ep">11</span><span class="c-ti">Karma Yoga</span><span class="c-md">Video</span><span class="c-st"><span class="wtag">TITLE EXISTS</span></span></div>
+              <div class="tr"><span class="cb">✓</span><span class="c-ep">12</span><span class="c-ti">The Steady Mind</span><span class="c-md">Audio</span><span class="c-st"><span class="wtag">NO THUMBNAIL</span></span></div>
+              <div class="tr"><span class="cb off"></span><span class="c-ep">13</span><span class="c-ti">Draft — do not publish yet</span><span class="c-md">Video</span><span class="c-st"><span class="gtag">READY</span></span></div>
+              <div class="tr" style="color:#9bb0b6;justify-content:center;font-size:9.5px">+ 19 more rows</div>
+            </div>
+            <div class="btnrow">
+              <span class="lft">23 of 24 selected</span>
+              <span class="btn gh">Back</span>
+              <span class="btn">Add 23 episodes</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SCREEN 6 ── -->
+    <div class="screen-row flip fade-up">
+      <div class="win">
+        <div class="win-bar"><span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span><span class="win-url">clix-cms · Content › Bulk Import › Done</span></div>
+        <div class="win-body">
+          <div class="side">
+            <div class="side-brand">▶ Clix CMS</div>
+            <div class="side-i">◻ Dashboard</div>
+            <div class="side-sec">Content</div>
+            <div class="side-i">◻ Videos</div>
+            <div class="side-i">◻ Audio</div>
+            <div class="side-i">◻ Series</div>
+            <div class="side-i">◻ Speakers</div>
+            <div class="side-i on">◼ Bulk Import</div>
+            <div class="side-sec">Users</div>
+            <div class="side-i">◻ Subscribers</div>
+          </div>
+          <div class="main">
+            <div class="okwrap">
+              <div class="okmark">✓</div>
+              <div class="oktitle">23 episodes added</div>
+              <div class="oksub">Bhagavad Gita · Season 2 — Karma Yoga · completed in 6.1s</div>
+            </div>
+            <div class="tiles">
+              <div class="tile g"><div class="tn">23</div><div class="tl">Episodes added</div></div>
+              <div class="tile"><div class="tn">1</div><div class="tl">Skipped by you</div></div>
+              <div class="tile"><div class="tn">0</div><div class="tl">Failed</div></div>
+            </div>
+            <div class="btnrow">
+              <span class="btn gh">Import more</span>
+              <span class="btn">View season →</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="screen-note">
+        <div class="sn-num">6</div>
+        <h3>Finished</h3>
+        <p>A plain summary of what happened, and a direct link into the season to check the result. If any row had failed it would be listed here with the reason — the rest would still have been added.</p>
+        <div class="kv">
+          <div><b>Added:</b> what went in</div>
+          <div><b>Skipped:</b> what you unticked</div>
+          <div><b>Failed:</b> with the reason</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- ══════════ BRANCH ══════════ -->
+<section id="branch" class="page-section">
+  <div class="sec-head fade-up">
+    <div class="sec-tag">The One Conditional</div>
+    <h2 class="sec-title">Seasons vs Flat Series</h2>
+    <p class="sec-desc">The only branch in the whole flow. The platform already knows which kind each series is, so the operator is never asked — the step simply appears or it does not.</p>
+  </div>
+
+  <div class="branch fade-up">
+    <!-- A -->
+    <div class="branch-col">
+      <div class="bc-head"><span class="bc-pill a">A · Series uses seasons</span></div>
+      <div class="win">
+        <div class="win-bar"><span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span><span class="win-url">3 steps</span></div>
+        <div style="padding:18px 20px;background:var(--ui-bg)">
+          <div class="sb done" style="margin-bottom:8px">
+            <div class="sb-head"><span class="sb-n">✓</span><span class="sb-t">Series</span><span class="tagx">Seasons</span></div>
+            <div class="sel">Bhagavad Gita <span class="chev">▼</span></div>
+          </div>
+          <div class="sb active" style="margin-bottom:8px">
+            <div class="sb-head"><span class="sb-n">2</span><span class="sb-t">Select season</span></div>
+            <div class="sel">Season 2 — Karma Yoga <span class="chev">▼</span></div>
+          </div>
           <div class="sb">
-            <div class="logo-row"><div class="logo-sq">▶</div><div class="logo-tx">Chinmaya Clix</div></div>
-            <div class="nav-i"><span class="ic">▦</span> Dashboard</div>
-            <div class="nav-i"><span class="ic">▤</span> Content</div>
-            <div class="nav-i"><span class="ic">👥</span> Users</div>
-            <div class="nav-i"><span class="ic">＄</span> Monetization</div>
-            <div class="nav-i active nav-new"><span class="ic">🎟️</span> POS</div>
-            <div class="nav-i"><span class="ic">📊</span> Analytics</div>
-            <div class="nav-i"><span class="ic">❔</span> Support</div>
-            <div class="nav-i"><span class="ic">⚙</span> Settings</div>
-          </div>
-          <div class="appmain">
-            <div class="pg-head">
-              <div><h3>POS Coupon Cards</h3><p>Generate, print and assign physical card codes for counter sales</p></div>
-              <button class="btn btn-pri" onclick="toast('info','Mockup','This opens the Create Batch dialog (Screen 2).')">＋ Create Batch</button>
-            </div>
-            <div class="filters">
-              <select class="sel"><option>All products</option><option>TVOD series</option><option>SVOD plans</option></select>
-              <select class="sel"><option>Any status</option><option>Active</option><option>Fully assigned</option></select>
-              <input class="inp" style="max-width:200px" placeholder="Search batch / content…" />
-              <button class="btn btn-out btn-sm">🔍 Search</button>
-              <button class="btn btn-out btn-sm" style="margin-left:auto">⬇ Export</button>
-            </div>
-            <table class="tbl">
-              <thead><tr><th>Batch</th><th>Product</th><th>Type</th><th>Qty</th><th>Printed</th><th>Assigned</th><th>Redeemed</th><th>Created</th><th></th></tr></thead>
-              <tbody>
-                <tr><td><b>ASHTA</b><br/><span class="tag-mock">batch #B-1042</span></td><td>Ashtavakra Gita</td><td><span class="badge b-tvod">TVOD</span></td><td>50</td><td>50</td><td>31</td><td>27</td><td>02 Jun 2026</td><td><button class="btn btn-out btn-sm" onclick="location.hash='#s-detail'">View</button></td></tr>
-                <tr><td><b>GEETA</b><br/><span class="tag-mock">batch #B-1043</span></td><td>Bhagavad Geeta</td><td><span class="badge b-tvod">TVOD</span></td><td>100</td><td>60</td><td>22</td><td>18</td><td>05 Jun 2026</td><td><button class="btn btn-out btn-sm" onclick="location.hash='#s-detail'">View</button></td></tr>
-                <tr><td><b>GOLD</b><br/><span class="tag-mock">batch #B-1044</span></td><td>Gold Annual Membership</td><td><span class="badge b-svod">SVOD</span></td><td>25</td><td>25</td><td>9</td><td>7</td><td>10 Jun 2026</td><td><button class="btn btn-out btn-sm" onclick="location.hash='#s-detail'">View</button></td></tr>
-              </tbody>
-            </table>
+            <div class="sb-head"><span class="sb-n">3</span><span class="sb-t">Upload episodes file</span></div>
+            <div class="drop" style="padding:11px"><div class="t1">episodes.csv</div></div>
           </div>
         </div>
       </div>
-      <div class="note"><h4>📋 Requirements &amp; cases</h4>
-        <ul>
-          <li>Top-level <b>POS</b> sidebar item, visible only to POS + Owner/Admin. <span class="frtag">FR (roles)</span></li>
-          <li><b>Create Batch</b> button on the page header (opens Screen 2). <span class="frtag">FR-1.1</span></li>
-          <li>Each row shows lifecycle counts (<b>Qty / Printed / Assigned / Redeemed</b>) — a mini reconciliation glance. <span class="frtag">FR-7.1</span></li>
-          <li><b>Filter</b> by product/type/status, <b>search</b> by batch or content, <b>export</b>. <span class="frtag">FR-1.6</span><span class="frtag">FR-7.4</span></li>
-          <li>Batch label = the shared random <b>prefix</b> (e.g. <code>ASHTA</code>) printed on every card in the batch.</li>
-        </ul>
-      </div>
-    </section>
+      <p class="bc-desc">The season step appears between the series and the file. Episodes are added to that one season.</p>
+    </div>
 
-    <!-- SCREEN 2 -->
-    <section id="s-create">
-      <div class="sec-h"><span class="sec-num">Screen 2</span><h2>Create batch</h2></div>
-      <p class="lead">Pick the product (one series or one plan), the quantity, and generate. Codes are minted as
-        <code>PREFIX-SUFFIX</code> — a random prefix shared by the whole batch + a unique random suffix per card. Price is
-        <b>not</b> stored here; it is read live from the catalog at assign time, in INR.</p>
-      <div class="browser">
-        <div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
-          <span class="url">clix-admin.chinmayamission.com/dashboard/pos · Create Batch</span></div>
-        <div style="background:var(--bg);padding:26px;display:grid;place-items:center">
-          <div class="dlg" style="box-shadow:none;border:1px solid var(--border)">
-            <div class="h"><h3>Create new batch</h3><p>Generate a set of unique card codes for one product</p></div>
-            <div class="bdy">
-              <div class="field"><label>Product type</label>
-                <div style="display:flex;gap:8px">
-                  <button class="btn btn-pri btn-sm">TVOD — Series</button>
-                  <button class="btn btn-out btn-sm">SVOD — Plan</button>
-                </div>
-              </div>
-              <div class="field"><label>Series</label>
-                <select class="sel" style="width:100%"><option>Ashtavakra Gita</option><option>Bhagavad Geeta</option></select>
-                <div class="hint">Only TVOD-enabled series are listed (reuses the gift-options endpoint).</div>
-              </div>
-              <div class="field"><label>Quantity of codes</label>
-                <input class="inp" value="50" />
-                <div class="hint">Batch size = the accountability target (50 codes = up to 50 sales). <span class="frtag">FR-1.5</span></div>
-              </div>
-              <div class="infobox">Codes will look like <code class="mono">ASHTA-7K2M9QXP</code> — random prefix (shared per batch) + random unique suffix. Price is read live at assign time · currency <b>INR</b>.</div>
-            </div>
-            <div class="ft"><button class="btn btn-out">Cancel</button>
-              <button class="btn btn-pri" onclick="toast('ok','Batch created','50 codes generated for “Ashtavakra Gita”.')">Generate 50 codes</button></div>
+    <!-- B -->
+    <div class="branch-col">
+      <div class="bc-head"><span class="bc-pill b">B · Flat series</span></div>
+      <div class="win">
+        <div class="win-bar"><span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span><span class="win-url">2 steps</span></div>
+        <div style="padding:18px 20px;background:var(--ui-bg)">
+          <div class="sb done" style="margin-bottom:8px">
+            <div class="sb-head"><span class="sb-n">✓</span><span class="sb-t">Series</span><span class="tagx">Flat</span></div>
+            <div class="sel">Weekly Satsang <span class="chev">▼</span></div>
+          </div>
+          <div class="sb active" style="margin-bottom:8px">
+            <div class="sb-head"><span class="sb-n">2</span><span class="sb-t">Upload episodes file</span></div>
+            <div class="drop" style="padding:11px"><div class="t1">episodes.csv</div></div>
+          </div>
+          <div style="border:1px dashed var(--ui-bd2);border-radius:9px;padding:10px 12px;font-size:10.5px;color:var(--ui-mut);text-align:center;background:#fff">
+            No season step — this series does not use seasons
           </div>
         </div>
       </div>
-      <div class="note"><h4>📋 Requirements &amp; cases</h4>
-        <ul>
-          <li>One batch maps to exactly <b>one</b> product — a series <i>or</i> a plan. <span class="frtag">FR-1.2</span><span class="frtag">D1</span></li>
-          <li>Generate <b>N unique, non-guessable</b> codes in a single action; codes never reissued. <span class="frtag">FR-1.1</span><span class="frtag">FR-1.4</span></li>
-          <li>Code format = <code>RANDOMPREFIX-RANDOMSUFFIX</code>; prefix shared per batch, suffix unique per card. Collision-checked for global uniqueness. <span class="frtag">FR-6.2</span></li>
-          <li><b>No price field</b> — invoice uses the content's real-time catalog price (INR) at assign time.</li>
-          <li><b>No expiry</b> field in v1 (deliberately dropped). <span class="frtag">D3 ✗</span></li>
-        </ul>
-      </div>
-    </section>
+      <p class="bc-desc">The season step is not shown at all. Episodes are added straight to the series, in file order.</p>
+    </div>
+  </div>
 
-    <!-- SCREEN 3 -->
-    <section id="s-detail">
-      <div class="sec-h"><span class="sec-num">Screen 3</span><h2>Batch detail &amp; code list</h2></div>
-      <p class="lead">All codes for a batch with their status. Codes are <b>masked</b> by default (reveal / copy on demand).
-        Select printed cards and <b>Mark printed</b> in bulk. Printed codes become assignable.</p>
-      <div class="browser">
-        <div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
-          <span class="url">clix-admin.chinmayamission.com/dashboard/pos/B-1042</span></div>
-        <div style="background:var(--bg);padding:18px">
-          <div class="pg-head">
-            <div><h3>Batch ASHTA · Ashtavakra Gita <span class="badge b-tvod">TVOD</span></h3>
-              <p>50 codes · 50 printed · 31 assigned · 27 redeemed · ₹499 (live catalog price)</p></div>
-            <div style="display:flex;gap:8px">
-              <button class="btn btn-out btn-sm" onclick="toast('ok','Marked printed','2 selected codes marked as printed.')">🖨 Mark printed (2)</button>
-              <button class="btn btn-out btn-sm">⬇ Export</button>
-            </div>
-          </div>
-          <div class="filters">
-            <select class="sel"><option>All statuses</option><option>Generated</option><option>Printed</option><option>Awaiting claim</option><option>Redeemed</option></select>
-            <input class="inp" style="max-width:220px" placeholder="Search code / email…" />
-          </div>
-          <table class="tbl">
-            <thead><tr><th style="width:34px"><input type="checkbox" class="check" disabled></th><th>Code</th><th>Status</th><th>Assigned to</th><th>Invoice</th><th>Printed</th><th></th></tr></thead>
-            <tbody>
-              <tr><td><input type="checkbox" class="check"></td>
-                <td><span class="codecell"><span class="codetxt" data-full="ASHTA-7K2M9QXP">ASHTA-••••••••</span>
-                  <button class="btn-ico" title="Reveal" onclick="reveal(this)">👁</button>
-                  <button class="btn-ico" title="Copy" onclick="copyCode(this)">⧉</button></span></td>
-                <td><span class="badge b-gen">Generated</span></td><td>—</td><td>—</td><td>—</td>
-                <td><span class="tag-mock">print first</span></td></tr>
-              <tr><td><input type="checkbox" class="check"></td>
-                <td><span class="codecell"><span class="codetxt" data-full="ASHTA-Q4WZ8N2R">ASHTA-••••••••</span>
-                  <button class="btn-ico" onclick="reveal(this)">👁</button>
-                  <button class="btn-ico" onclick="copyCode(this)">⧉</button></span></td>
-                <td><span class="badge b-print">Printed</span></td><td>—</td><td>—</td><td>02 Jun</td>
-                <td><button class="btn btn-pri btn-sm" onclick="openAssign()">Assign</button></td></tr>
-              <tr><td><input type="checkbox" class="check"></td>
-                <td><span class="codecell"><span class="codetxt" data-full="ASHTA-M5RPK9TW">ASHTA-••••••••</span>
-                  <button class="btn-ico" onclick="reveal(this)">👁</button>
-                  <button class="btn-ico" onclick="copyCode(this)">⧉</button></span></td>
-                <td><span class="badge b-claim">Awaiting claim</span></td><td>devotee@gmail.com</td><td>INV-7741</td><td>02 Jun</td>
-                <td><span class="tag-mock">awaiting claim</span></td></tr>
-              <tr><td><input type="checkbox" class="check" disabled></td>
-                <td><span class="codecell"><span class="codetxt" data-full="ASHTA-J2H8XQ4F">ASHTA-••••••••</span>
-                  <button class="btn-ico" onclick="reveal(this)">👁</button>
-                  <button class="btn-ico" onclick="copyCode(this)">⧉</button></span></td>
-                <td><span class="badge b-redeem">Redeemed</span></td><td>rama@yahoo.com</td><td>INV-7702</td><td>02 Jun</td>
-                <td><span class="tag-mock">locked</span></td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-      <div class="demobar">
-        <button class="btn btn-out btn-sm" onclick="copyCode(null,true)">Try: copy a code →</button>
-        <span class="hint">Reveal (👁) and copy (⧉) are live in this mockup.</span>
-      </div>
-      <div class="note"><h4>📋 Requirements &amp; cases</h4>
-        <ul>
-          <li><b>Mark printed: per-code, multi-select</b> — generate 50, mark any 10. Only printed codes are assignable. <span class="frtag">FR-2.2</span><span class="frtag">FR-2.3</span></li>
-          <li>Records printed <b>operator + date</b> per card (audit). <span class="frtag">FR-2.3</span><span class="frtag">NFR audit</span></li>
-          <li><b>Concealment</b>: codes masked by default; reveal/copy on click (sealed-card intent). <span class="frtag">FR-2.5</span><span class="frtag">D7</span></li>
-          <li>The <b>Assign</b> action only appears once a code is <b>Printed</b> — Generated codes show no action.</li>
-          <li>Once <b>assigned</b>, a code is bound to that customer and <b>cannot be reverted</b> (no edit / re-assign).</li>
-        </ul>
-      </div>
-    </section>
+  <div class="call hi fade-up">
+    <b>Why this matters</b>
+    <span>Today the operator has to know this rule and encode it themselves — a season number in a flat series is an error, a missing one in a seasons series is another. Those two error messages account for a large share of failed uploads. In the new flow the rule is enforced by the interface, so neither mistake is possible.</span>
+  </div>
+</section>
 
-    <!-- SCREEN 4 -->
-    <section id="s-assign">
-      <div class="sec-h"><span class="sec-num">Screen 4</span><h2>Assign to user (Owner/Admin only)</h2></div>
-      <p class="lead">Enter the customer's email. The system checks if they already exist. New users also provide a name and
-        (optional) mobile. On assign we raise an INR invoice at the live price, email it as a PDF, and either grant access now
-        (existing user) or park the code as <i>Awaiting claim</i> (new user).</p>
-      <div class="grid2">
+<hr class="section-divider">
+
+<!-- ══════════ LOGIC ══════════ -->
+<section id="logic" class="page-section">
+  <div class="sec-head fade-up">
+    <div class="sec-tag o">Selection Logic</div>
+    <h2 class="sec-title">What Happens Behind Each Choice</h2>
+    <p class="sec-desc">Each selection narrows the next one, so by the time the file is read there is nothing left to interpret.</p>
+  </div>
+
+  <div class="fd fade-up">
+    <div class="fd-col">
+      <div class="fd-box start">Open Bulk Import<small>Nothing selected yet</small></div>
+      <div class="fd-arr"></div>
+      <div class="fd-box act">Select a series<small>Searchable list of existing series</small></div>
+      <div class="fd-arr"></div>
+      <div class="fd-box dec">Does this series use seasons?<small>Answered by the platform, not the operator</small></div>
+      <div class="fd-arr"></div>
+
+      <div class="fd-two">
         <div>
-          <div class="browser">
-            <div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="url">Assign · existing user</span></div>
-            <div style="background:var(--bg);padding:20px;display:grid;place-items:center">
-              <div class="dlg" style="box-shadow:none;border:1px solid var(--border);max-width:100%">
-                <div class="h"><h3>Assign code <span class="mono" style="font-size:13px">ASHTA-Q4WZ8N2R</span></h3><p>Bind this card to a customer and grant access</p></div>
-                <div class="bdy">
-                  <div class="field"><label>Customer email</label><input class="inp" value="rama@yahoo.com" /></div>
-                  <div class="infobox green">✔ Existing Clix user — access will be granted immediately and an invoice emailed.</div>
-                  <div class="infobox">Product: <b>Ashtavakra Gita</b> · Amount: <b>₹499</b> (live price) · Currency: INR</div>
-                </div>
-                <div class="ft"><button class="btn btn-out">Cancel</button>
-                  <button class="btn btn-pri" onclick="toast('ok','Access assigned','Granted to rama@yahoo.com · invoice INV-7745 emailed.')">Assign &amp; grant</button></div>
-              </div>
-            </div>
-          </div>
+          <div class="fd-lbl">YES</div>
+          <div class="fd-box act">Show season list</div>
+          <div class="fd-arr"></div>
+          <div class="fd-box act">Season chosen</div>
         </div>
         <div>
-          <div class="browser">
-            <div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="url">Assign · new user</span></div>
-            <div style="background:var(--bg);padding:20px;display:grid;place-items:center">
-              <div class="dlg" style="box-shadow:none;border:1px solid var(--border);max-width:100%">
-                <div class="h"><h3>Assign code <span class="mono" style="font-size:13px">ASHTA-Q4WZ8N2R</span></h3><p>Bind this card to a customer and grant access</p></div>
-                <div class="bdy">
-                  <div class="field"><label>Customer email</label><input class="inp" value="newdevotee@gmail.com" /></div>
-                  <div class="infobox amber">ⓘ No account yet — capture details. The user gets a sign-up email; access unlocks when they register.</div>
-                  <div class="field"><label>Full name</label><input class="inp" value="Anand Sharma" /></div>
-                  <div class="field"><label>Mobile <span class="hint">(optional)</span></label><input class="inp" value="+91 ·········" /></div>
-                </div>
-                <div class="ft"><button class="btn btn-out">Cancel</button>
-                  <button class="btn btn-pri" onclick="toast('ok','Code assigned','Awaiting claim — sign-up email sent to newdevotee@gmail.com.')">Assign &amp; email</button></div>
-              </div>
-            </div>
-          </div>
+          <div class="fd-lbl">NO</div>
+          <div class="fd-box skip">Season step hidden</div>
+          <div class="fd-arr"></div>
+          <div class="fd-box act">Straight to upload</div>
         </div>
       </div>
-      <div class="note"><h4>📋 Requirements &amp; cases</h4>
-        <ul>
-          <li>Bind <b>code + customer email</b>; existing-user check on email. <span class="frtag">FR-4.2</span><span class="frtag">D2</span></li>
-          <li>New user → capture <b>name + optional mobile</b>, store pending binding, send sign-up/access email. <span class="frtag">FR-5.1</span></li>
-          <li>Generate <b>invoice (INR)</b> at the live catalog price, marked as a POS sale; email the <b>PDF</b>. <span class="frtag">FR-4.4</span><span class="frtag">D4</span></li>
-          <li><b>Concurrency-safe</b>: the card row is locked (<code>FOR UPDATE</code>) so two admins can't assign the same code. <span class="frtag">NFR reliability</span></li>
-          <li>Existing user → access <b>auto-granted</b> (create Purchase / gift-style subscription). New user → <b>Awaiting claim</b>.</li>
-        </ul>
-      </div>
-    </section>
 
-    <!-- SCREEN 5 -->
-    <section id="s-toasts">
-      <div class="sec-h"><span class="sec-num">Screen 5</span><h2>Blocking &amp; toasts</h2></div>
-      <p class="lead">Every action confirms with a toast on success and explains on failure. The key block: a customer who
-        <b>already has access</b> to the content can't be assigned again — the backend returns a clear message that the toast surfaces.</p>
-      <div class="card" style="padding:20px">
-        <div class="demobar">
-          <button class="btn btn-pri" onclick="toast('ok','Access assigned','The user has been emailed.')">Success toast</button>
-          <button class="btn btn-out" onclick="toast('err','Cannot assign','This user already has access to this content.')">Block: already has access</button>
-          <button class="btn btn-out" onclick="toast('err','Cannot assign','This code must be marked printed before it can be assigned.')">Block: not printed</button>
-          <button class="btn btn-out" onclick="toast('err','Cannot assign','This code has already been assigned.')">Block: already assigned</button>
-          <button class="btn btn-out" onclick="toast('err','Invalid code','Invalid or unknown code.')">Invalid code</button>
-        </div>
-        <div class="hint" style="margin-top:12px">Click any button — toasts appear bottom-right, exactly as <code>sonner</code> renders them in the app.</div>
-      </div>
-      <div class="grid2" style="margin-top:16px">
-        <div class="note"><h4>🧩 Backend messages (<code>messages.py</code>)</h4>
-          <ul style="font-size:13px">
-            <li><code>CARD_RECIPIENT_ALREADY_HAS_ACCESS</code> — "This user already has access to this content."</li>
-            <li><code>CARD_ALREADY_ASSIGNED</code> — "This code has already been assigned."</li>
-            <li><code>CARD_NOT_PRINTED</code> — "…must be marked printed before it can be assigned."</li>
-            <li><code>CARD_INVALID_CODE</code> — "Invalid or unknown code."</li>
-          </ul>
-        </div>
-        <div class="note"><h4>🔎 How "already has access" is detected</h4>
-          <ul style="font-size:13px">
-            <li><b>TVOD</b>: existing completed <code>Purchase</code> for the series, or active plan that includes it.</li>
-            <li><b>SVOD</b>: active/trialing <code>Subscription</code>.</li>
-            <li>Mirrors gift <code>check_block_rules</code>; raised as <code>BadRequestError</code> → <code>{status:"error",code:400,message}</code>.</li>
-          </ul>
-          <span class="frtag">FR-4.5</span><span class="frtag">FR-5.4</span><span class="frtag">FR-6.3</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- SCREEN 6 -->
-    <section id="s-orders">
-      <div class="sec-h"><span class="sec-num">Screen 6</span><h2>Orders integration</h2></div>
-      <p class="lead">Each assigned card's invoice appears in the existing <b>Orders</b> page as its own <b>POS Card</b> type — so finance
-        sees the physical channel alongside online sales, and can download the PDF.</p>
-      <div class="browser">
-        <div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
-          <span class="url">clix-admin.chinmayamission.com/dashboard/monetization/orders</span></div>
-        <div style="background:var(--bg);padding:18px">
-          <div class="pg-head"><div><h3>Orders</h3><p>All sales across channels</p></div>
-            <select class="sel"><option>All types</option><option>Subscriptions</option><option>Purchases</option><option>Gifts</option><option>POS Card</option></select></div>
-          <table class="tbl">
-            <thead><tr><th>Invoice #</th><th>Customer</th><th>Type</th><th>Item</th><th>Amount</th><th>Status</th><th>Date</th><th></th></tr></thead>
-            <tbody>
-              <tr><td>INV-7745</td><td>rama@yahoo.com</td><td><span class="badge b-pos">POS Card</span></td><td>Ashtavakra Gita</td><td>₹499</td><td><span class="badge b-redeem">Redeemed</span></td><td>11 Jun 2026</td><td><button class="btn btn-out btn-sm">⬇ PDF</button></td></tr>
-              <tr><td>INV-7741</td><td>devotee@gmail.com</td><td><span class="badge b-pos">POS Card</span></td><td>Ashtavakra Gita</td><td>₹499</td><td><span class="badge b-claim">Awaiting claim</span></td><td>11 Jun 2026</td><td><button class="btn btn-out btn-sm">⬇ PDF</button></td></tr>
-              <tr><td>INV-7702</td><td>priya@gmail.com</td><td><span class="badge b-svod">SVOD</span></td><td>Gold · Monthly</td><td>₹299</td><td><span class="badge b-redeem">Active</span></td><td>10 Jun 2026</td><td><button class="btn btn-out btn-sm">⬇ PDF</button></td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-      <div class="note"><h4>📋 Requirements &amp; cases</h4>
-        <ul>
-          <li>Orders is a union of order entities (subscriptions / purchases / gifts) + invoice — <b>not</b> a raw invoice list. We add a 5th source: <b>POS card sales</b>. <span class="frtag">FR-7.2</span></li>
-          <li>New <b>"POS Card"</b> type filter isolates the counter channel for finance.</li>
-          <li>Invoice <b>PDF download</b> reuses the existing <code>/admin/invoices/{id}/download</code> endpoint — works once the row carries <code>invoice_id</code>.</li>
-        </ul>
-      </div>
-    </section>
-
-    <!-- SCREEN 7 -->
-    <section id="s-recon">
-      <div class="sec-h"><span class="sec-num">Screen 7</span><h2>Reconciliation report</h2></div>
-      <p class="lead">Per-batch lifecycle counts + the two watched gaps: <b>Printed − Assigned</b> (unsold stock) and
-        <b>Assigned − Redeemed</b> (paid but not activated). Exportable for accounting.</p>
-      <div class="browser">
-        <div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
-          <span class="url">clix-admin.chinmayamission.com/dashboard/pos/reconciliation</span></div>
-        <div style="background:var(--bg);padding:18px">
-          <div class="pg-head"><div><h3>POS Reconciliation</h3><p>Codes generated → printed → assigned → redeemed → revenue</p></div>
-            <button class="btn btn-out btn-sm">⬇ Export CSV</button></div>
-          <table class="tbl">
-            <thead><tr><th>Batch</th><th>Product</th><th>Generated</th><th>Printed</th><th>Assigned</th><th>Redeemed</th><th>Unsold (P−A)</th><th>Pending (A−R)</th><th>Revenue</th></tr></thead>
-            <tbody>
-              <tr><td>ASHTA</td><td>Ashtavakra Gita</td><td>50</td><td>50</td><td>31</td><td>27</td><td><b style="color:var(--amber-fg)">19</b></td><td><b style="color:var(--blue-fg)">4</b></td><td>₹15,469</td></tr>
-              <tr><td>GEETA</td><td>Bhagavad Geeta</td><td>100</td><td>60</td><td>22</td><td>18</td><td><b style="color:var(--amber-fg)">38</b></td><td><b style="color:var(--blue-fg)">4</b></td><td>₹10,978</td></tr>
-              <tr><td>GOLD</td><td>Gold Annual</td><td>25</td><td>25</td><td>9</td><td>7</td><td><b style="color:var(--amber-fg)">16</b></td><td><b style="color:var(--blue-fg)">2</b></td><td>₹26,991</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-      <div class="note"><h4>📋 Requirements &amp; cases</h4>
-        <ul>
-          <li>Lifecycle counts per batch/product. <span class="frtag">FR-7.1</span></li>
-          <li>Sales report rows: code, customer email, amount, assigning admin, date. <span class="frtag">FR-7.2</span></li>
-          <li><b>Printed − Assigned</b> = unsold stock at POS; <b>Assigned − Redeemed</b> = paid-but-not-activated (follow-up). <span class="frtag">FR-7.3</span><span class="frtag">§8</span></li>
-          <li>Revenue = sum of assigned-code invoices. Export for accounting. <span class="frtag">FR-7.4</span></li>
-        </ul>
-      </div>
-    </section>
-
-    <!-- SCREEN 8 -->
-    <section id="s-popup">
-      <div class="sec-h"><span class="sec-num">Screen 8</span><h2>Customer popup (portal)</h2></div>
-      <p class="lead">No in-app code entry. Access is auto-granted; on the customer's next portal session a popup announces it —
-        the exact <code>GiftPopup</code> mechanism (unseen flag → show once → mark seen).</p>
-      <div class="portal-fr">
-        <div class="ppop">
-          <h4>🎉 You now have access!</h4>
-          <div class="sub">Your Chinmaya Clix card has been activated.</div>
-          <div class="row"><span class="k">Title</span><span>Ashtavakra Gita</span></div>
-          <div class="row"><span class="k">Access</span><span>Unlimited lifetime</span></div>
-          <button class="cta" onclick="toast('ok','Enjoy 🙏','Marked seen — opens the title.')">Watch now</button>
-        </div>
-      </div>
-      <div class="note"><h4>📋 Requirements &amp; cases</h4>
-        <ul>
-          <li>Driven by an <b>unseen flag</b> (<code>seen_by_recipient_at</code>), shown on next login/focus, then marked seen — never repeats. <span class="frtag">FR-5.3</span></li>
-          <li>Clone of <code>frontend/src/components/portal/gift-popup.tsx</code> → <code>PosCardPopup</code> with adjusted copy.</li>
-          <li>Includes a <b>Watch now / Start watching</b> deep-link to the unlocked content.</li>
-          <li>If the user is mid-session at assign time, it surfaces on their next focus/login (not instantly) — same as gifting.</li>
-        </ul>
-      </div>
-    </section>
-
-    <!-- SCREEN 9 -->
-    <section id="s-email">
-      <div class="sec-h"><span class="sec-num">Screen 9</span><h2>Assignment emails</h2></div>
-      <p class="lead">House style: <b>Hari Om</b> greeting, Clix header, navy CTA, "The Chinmaya Clix Team". Plain Clix sender (no named person).
-        Two branches — existing user (access ready) vs new user (sign up to claim) — plus the invoice PDF.</p>
-      <div class="grid2">
-        <div class="email">
-          <div class="card-e">
-            <div class="hdr-e">Chinmaya Clix</div>
-            <div class="bd-e">
-              <h4>You now have access 🎉</h4>
-              <p style="font-size:13px">Hari Om Rama,</p>
-              <p style="font-size:13px">You now have access to <b>Ashtavakra Gita</b> on Chinmaya Clix. It's ready to enjoy.</p>
-              <div class="grey-e"><b>Title:</b> Ashtavakra Gita<br/><b>Access:</b> Unlimited lifetime</div>
-              <a class="cta-e">Watch Now</a>
-              <div class="pdfchip">📄 Invoice_INV-7745.pdf</div>
-              <div class="ft-e">Enjoy!<br/>The Chinmaya Clix Team</div>
-            </div>
-          </div>
-          <div class="tag-mock" style="text-align:center;margin-top:8px">Existing user · access granted</div>
-        </div>
-        <div class="email">
-          <div class="card-e">
-            <div class="hdr-e">Chinmaya Clix</div>
-            <div class="bd-e">
-              <h4>Your Clix access is waiting</h4>
-              <p style="font-size:13px">Hari Om Anand,</p>
-              <p style="font-size:13px">You've been given access to <b>Ashtavakra Gita</b>. Sign up with this email address to claim it.</p>
-              <div class="grey-e"><b>Title:</b> Ashtavakra Gita<br/><b>Access:</b> Unlimited lifetime</div>
-              <a class="cta-e">Sign up to claim access</a>
-              <div class="ft-e">See you soon!<br/>The Chinmaya Clix Team</div>
-            </div>
-          </div>
-          <div class="tag-mock" style="text-align:center;margin-top:8px">New user · sign-up CTA</div>
-        </div>
-      </div>
-      <div class="note"><h4>📋 Requirements &amp; cases</h4>
-        <ul>
-          <li>New methods <code>send_code_assigned_tvod</code> / <code>send_code_assigned_svod</code> mirroring <code>send_gift_received_*</code>.</li>
-          <li>Branch on registered vs unregistered (Watch Now vs Sign up to claim). <span class="frtag">FR-4.6</span><span class="frtag">FR-5.1</span></li>
-          <li>Existing-user mail attaches the <b>invoice PDF</b>. AWS SES via <code>email_service</code>.</li>
-          <li>Plain Chinmaya Clix sender; no named person, no point-of-sale mention.</li>
-        </ul>
-      </div>
-    </section>
-
-    <!-- DATA MODEL -->
-    <section id="datamodel">
-      <div class="sec-h"><span class="sec-num">§4</span><h2>Data model</h2></div>
-      <p class="lead">Two new tables — <code>card_batch</code> and <code>card</code> — plus links to the existing <code>invoice</code>,
-        <code>purchase</code> and <code>subscription</code> rows the card fulfils. (Full ER diagram is in <b>View Flowchart &amp; Diagrams</b>.)</p>
-      <div class="grid2">
-        <div class="note"><h4>🗃️ card_batch</h4>
-          <ul style="font-size:13px">
-            <li><code>id, organization_id</code></li>
-            <li><code>product_type</code> tvod | svod</li>
-            <li><code>content_id</code> (series) / <code>plan_id</code></li>
-            <li><code>prefix</code> — random, shared per batch</li>
-            <li><code>quantity, currency='INR'</code></li>
-            <li><code>created_at, created_by</code></li>
-          </ul>
-        </div>
-        <div class="note"><h4>🎟️ card</h4>
-          <ul style="font-size:13px">
-            <li><code>id, batch_id</code></li>
-            <li><code>code</code> — <code>PREFIX-SUFFIX</code>, globally unique</li>
-            <li><code>status</code> generated | printed | awaiting_claim | redeemed</li>
-            <li><code>assigned_email, assigned_user_id, recipient_name, recipient_mobile</code></li>
-            <li><code>invoice_id, fulfilled_purchase_id, fulfilled_subscription_id</code></li>
-            <li>audit: <code>printed_at/by, assigned_at/by, redeemed_at, seen_by_recipient_at</code></li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <!-- EDGE CASES -->
-    <section id="edge">
-      <div class="sec-h"><span class="sec-num">§5</span><h2>Edge cases &amp; business rules</h2></div>
-      <div class="grid2">
-        <div class="note ok"><h4>✔ Handled</h4>
-          <ul>
-            <li>Duplicate-assign on a sold code → blocked + clear toast. <span class="frtag">FR-4.5</span></li>
-            <li>Customer already owns the product → blocked. <span class="frtag">FR-6.3</span></li>
-            <li>Concurrent assign of one code → row lock, no double-sell. <span class="frtag">NFR</span></li>
-            <li>Once assigned, the binding is irreversible — no edit / re-assign.</li>
-            <li>Globally-unique, non-guessable codes (collision-checked). <span class="frtag">FR-1.4</span><span class="frtag">FR-6.2</span></li>
-            <li>Product mismatch impossible — a code unlocks only its mapped product. <span class="frtag">FR-6.3</span></li>
-          </ul>
-        </div>
-        <div class="note warn"><h4>⚠ Notes / trade-offs</h4>
-          <ul>
-            <li>Codes stored <b>plain</b> (not hashed) — they must be displayed/printed. <span class="frtag">NFR</span></li>
-            <li>"Staff" in reports = the <b>Owner/Admin who assigned</b> (assign is admin-only, not counter POS).</li>
-            <li>Email <b>mismatch</b> handled by binding — only the bound email's account receives access.</li>
-            <li>Print step = checkbox + simple confirm (not a multi-item checklist).</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <!-- SCOPE -->
-    <section id="scope">
-      <div class="sec-h"><span class="sec-num">§6</span><h2>Scope &amp; locked decisions (v1)</h2></div>
-      <div class="grid2">
-        <div class="note ok"><h4>✅ In scope</h4>
-          <ul>
-            <li>POS module + new POS role</li>
-            <li>Batch create / generate / per-code list</li>
-            <li>Mark printed (multi-select) + code concealment</li>
-            <li>Assign → INR invoice (live price) + email PDF</li>
-            <li>Auto-grant + portal popup</li>
-            <li>Orders integration + reconciliation/export</li>
-          </ul>
-        </div>
-        <div class="note danger"><h4>🚫 Out of scope (v1)</h4>
-          <ul class="scope-out" style="opacity:1">
-            <li>Expiry / validity window <span class="frtag">D3</span></li>
-            <li>POS-location stock allocation (single store) <span class="frtag">FR-3</span></li>
-            <li>Refund / void / damaged-card reprint <span class="frtag">FR-2.4</span><span class="frtag">D5</span></li>
-            <li>Multi-currency (INR only)</li>
-            <li>Payment mode + free-text notes <span class="frtag">FR-4.3</span></li>
-            <li>Counter POS staff doing the sale (Admin assigns)</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <div class="footer">
-      Chinmaya Clix · Coupon Card &amp; POS Redemption — Feature KT · generated for developer hand-off ·
-      reference spec “Clix Docs, June 2026”.<br/>Use <b>🗺️ View Flowchart &amp; Diagrams</b> (top-right) for the end-to-end flow, state machine, sequence, ER and RBAC.
-    </div>
-  </main>
-</div>
-
-<!-- ============== ASSIGN DEMO DIALOG ============== -->
-<div class="ov" id="assignOv">
-  <div class="dlg">
-    <div class="h"><h3>Assign code <span class="mono" style="font-size:13px">ASHTA-Q4WZ8N2R</span></h3><p>Bind this card to a customer and grant access</p></div>
-    <div class="bdy">
-      <div class="field"><label>Customer email</label><input class="inp" id="assignEmail" placeholder="customer@email.com" value="rama@yahoo.com" /></div>
-      <div class="infobox green">✔ Existing Clix user — access granted immediately, invoice emailed.</div>
-      <div class="infobox">Product: <b>Ashtavakra Gita</b> · Amount: <b>₹499</b> (live price) · INR</div>
-    </div>
-    <div class="ft"><button class="btn btn-out" onclick="closeAssign()">Cancel</button>
-      <button class="btn btn-pri" onclick="closeAssign();toast('ok','Access assigned','Granted · invoice INV-7745 emailed.')">Assign &amp; grant</button></div>
-  </div>
-</div>
-
-<!-- ============== DIAGRAM MODAL ============== -->
-<div class="dmodal" id="dmodal">
-  <div class="dhead">
-    <h3 style="font-family:Domine;margin-right:6px">Flows &amp; Diagrams</h3>
-    <div class="dtabs">
-      <button class="dtab active" data-pane="p-flow" onclick="showPane(this)">End-to-end flow</button>
-      <button class="dtab" data-pane="p-state" onclick="showPane(this)">State machine</button>
-      <button class="dtab" data-pane="p-seq" onclick="showPane(this)">Assign sequence</button>
-      <button class="dtab" data-pane="p-er" onclick="showPane(this)">Data model (ER)</button>
-      <button class="dtab" data-pane="p-rbac" onclick="showPane(this)">RBAC matrix</button>
-    </div>
-    <button class="dclose" onclick="closeDiagrams()">✕</button>
-  </div>
-  <div class="dbody">
-    <div class="dpane active" id="p-flow">
-      <h4>End-to-end flow</h4><p class="cap">Generate → Print → Assign → (auto-grant / claim) → Redeem → Reconcile.</p>
-      <pre class="mermaid">
-flowchart TD
-  A["POS/Admin: Create Batch<br/>map to Series or Plan, qty N"] --> B["Generate N codes<br/>PREFIX-SUFFIX (random)"]
-  B --> C["Mark Printed<br/>per-code, multi-select"]
-  C --> D["Owner/Admin: Assign<br/>enter customer email"]
-  D --> E{"User exists?"}
-  E -- "No" --> G["Capture name + mobile(opt)<br/>store pending binding"]
-  G --> I["Email: sign up to claim"]
-  I --> L["Status: Awaiting claim"]
-  L --> M["Customer registers<br/>with that email"]
-  M --> F
-  E -- "Yes" --> F{"Already has<br/>access?"}
-  F -- "Yes" --> X["BLOCK + toast:<br/>'User already has this access'"]
-  F -- "No" --> H["Grant access now<br/>create Purchase / Subscription"]
-  H --> J["Create INR invoice (live price)<br/>email PDF receipt"]
-  J --> K["Status: Redeemed / Active"]
-  K --> N["Portal popup next login:<br/>'You now have access'"]
-  K --> O["Appears in Orders + Reconciliation"]
-  classDef block fill:#fee2e2,stroke:#b91c1c,color:#b91c1c;
-  classDef ok fill:#dcfce7,stroke:#15803d,color:#15803d;
-  class X block; class K,O ok;
-      </pre>
-    </div>
-    <div class="dpane" id="p-state">
-      <h4>Code state machine</h4><p class="cap">No Allocated / Void / Expired in v1. Awaiting-claim is editable; Redeemed is terminal.</p>
-      <pre class="mermaid">
-stateDiagram-v2
-  [*] --> Generated
-  Generated --> Printed: mark printed (per-code)
-  Printed --> AwaitingClaim: assign to NEW email
-  Printed --> Redeemed: assign to EXISTING user (auto-grant)
-  AwaitingClaim --> Redeemed: user registers + access granted
-  Redeemed --> [*]
-  note right of AwaitingClaim
-    Bound to email - awaiting registration
-  end note
-  note right of Redeemed
-    Terminal - irreversible
-  end note
-      </pre>
-    </div>
-    <div class="dpane" id="p-seq">
-      <h4>Assign sequence</h4><p class="cap">Row-locked, idempotent — mirrors gift fulfillment. Blocks if the user already owns the product.</p>
-      <pre class="mermaid">
-sequenceDiagram
-  autonumber
-  actor A as Admin
-  participant UI as CMS POS Page
-  participant API as Backend API
-  participant DB as Database
-  participant M as Email (SES)
-  actor C as Customer
-  A->>UI: Enter code + email, click Assign
-  UI->>API: POST /pos/cards/{id}/assign {email}
-  API->>DB: SELECT card ... FOR UPDATE (lock)
-  API->>DB: lookup user by email
-  alt user exists AND already owns content
-    API-->>UI: 400 "User already has this access"
-    UI-->>A: error toast
-  else OK
-    alt existing user
-      API->>DB: create Purchase / Subscription (grant)
-      API->>DB: create INR invoice (live price)
-      API->>M: access email + invoice PDF
-      API->>DB: status = Redeemed
-    else new user
-      API->>DB: status = Awaiting claim
-      API->>M: sign-up + access email
-    end
-    API-->>UI: 200 success
-    UI-->>A: success toast
-  end
-  C->>API: register / login (if new)
-  API->>DB: claim binding -> grant access
-  C->>API: next portal visit
-  API-->>C: popup "You now have access"
-      </pre>
-    </div>
-    <div class="dpane" id="p-er">
-      <h4>Data model (ER)</h4><p class="cap">New: card_batch, card. Reused: invoice, purchase, subscription, users.</p>
-      <pre class="mermaid">
-erDiagram
-  CARD_BATCH ||--o{ CARD : contains
-  USER ||--o{ CARD : "assigned to"
-  CARD ||--o| INVOICE : generates
-  CARD ||--o| PURCHASE : "grants (TVOD)"
-  CARD ||--o| SUBSCRIPTION : "grants (SVOD)"
-  CARD_BATCH {
-    uuid id
-    uuid organization_id
-    string product_type "tvod|svod"
-    uuid content_id "series"
-    uuid plan_id "plan"
-    string prefix "random, per batch"
-    int quantity
-    string currency "INR"
-    uuid created_by
-  }
-  CARD {
-    uuid id
-    uuid batch_id
-    string code "PREFIX-SUFFIX unique"
-    string status "generated|printed|awaiting_claim|redeemed"
-    string assigned_email
-    uuid assigned_user_id
-    string recipient_name
-    string recipient_mobile
-    uuid invoice_id
-    uuid fulfilled_purchase_id
-    uuid fulfilled_subscription_id
-    datetime printed_at
-    datetime assigned_at
-    datetime redeemed_at
-    datetime seen_by_recipient_at
-  }
-      </pre>
-    </div>
-    <div class="dpane" id="p-rbac">
-      <h4>RBAC matrix</h4><p class="cap">POS role is scoped to the POS module; assign stays with Owner/Admin.</p>
-      <table class="matrix">
-        <tr><th style="text-align:left">Capability</th><th>POS</th><th>Owner / Admin</th><th>Other roles</th></tr>
-        <tr><td class="lbl">See POS module</td><td class="yes">✔</td><td class="yes">✔</td><td class="no">—</td></tr>
-        <tr><td class="lbl">Create batch + generate</td><td class="yes">✔</td><td class="yes">✔</td><td class="no">—</td></tr>
-        <tr><td class="lbl">Mark printed</td><td class="yes">✔</td><td class="yes">✔</td><td class="no">—</td></tr>
-        <tr><td class="lbl">Assign (+ invoice + grant)</td><td class="no">—</td><td class="yes">✔</td><td class="no">—</td></tr>
-        <tr><td class="lbl">Orders / Reconciliation</td><td class="no">—</td><td class="yes">✔</td><td class="no">varies</td></tr>
-      </table>
+      <div class="fd-arr"></div>
+      <div class="fd-box act">Upload episodes file<small>Title and media address required</small></div>
+      <div class="fd-arr"></div>
+      <div class="fd-box dec">Review screen<small>Warnings shown · rows can be unticked</small></div>
+      <div class="fd-arr"></div>
+      <div class="fd-box suc">Episodes added<small>Numbered in file order, after the existing ones</small></div>
     </div>
   </div>
-</div>
 
-<div id="toasts"></div>
+  <div class="call o fade-up">
+    <b>Episode numbering</b>
+    <span>New episodes continue from whatever is already in that series or season — if Season 2 ends at episode 8, the file's first row becomes episode 9. The order of the rows in the spreadsheet is the order they appear on the platform, so sorting in Excel is all that is needed.</span>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- ══════════ COMPARE ══════════ -->
+<section id="compare" class="page-section">
+  <div class="sec-head fade-up">
+    <div class="sec-tag g">Before / After</div>
+    <h2 class="sec-title">What Actually Changes</h2>
+    <p class="sec-desc">Every figure below counts something the operator has to do, or has to get right, for an upload to succeed.</p>
+  </div>
+
+  <table class="cmp fade-up">
+    <thead><tr><th>Measure</th><th>Today</th><th>Proposed</th></tr></thead>
+    <tbody>
+      <tr><td>Spreadsheets to prepare</td><td class="was">3</td><td class="now">1</td></tr>
+      <tr><td>Columns across all files</td><td class="was">39</td><td class="now">12</td></tr>
+      <tr><td>Columns that must be filled in</td><td class="was">6</td><td class="now">2</td></tr>
+      <tr><td>Names that must match exactly across files</td><td class="was">2</td><td class="now">0</td></tr>
+      <tr><td>Where the series is chosen</td><td class="was">Typed in 2 files</td><td class="now">Dropdown</td></tr>
+      <tr><td>Where the season is chosen</td><td class="was">Typed as a number</td><td class="now">Dropdown</td></tr>
+      <tr><td>Where a mistake is corrected</td><td class="was">Excel, then re-upload</td><td class="now">On screen</td></tr>
+      <tr><td>Length of the instruction manual</td><td class="was">1,500+ lines</td><td class="now">~1 page</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<hr class="section-divider">
+
+<!-- ══════════ SCOPE ══════════ -->
+<section id="scope" class="page-section">
+  <div class="sec-head fade-up">
+    <div class="sec-tag">Scope</div>
+    <h2 class="sec-title">What This Phase Delivers</h2>
+    <p class="sec-desc">Nothing is removed from the platform. Two things move to screens that already exist, and one returns in a later phase.</p>
+  </div>
+
+  <div class="grid2 fade-up">
+    <div class="pcard">
+      <h4><span class="mk in">✓</span> Included now</h4>
+      <ul>
+        <li>Series and season selection by dropdown, with search</li>
+        <li>Season step shown <b>only</b> where it applies</li>
+        <li>Single-file episode upload, two required columns</li>
+        <li>Review screen with per-row warnings before anything saves</li>
+        <li>Row selection — add 23 of 24 if preferred</li>
+        <li>Inline <b>create season</b> so the page never has to be left</li>
+        <li>New template file and a one-page guide</li>
+      </ul>
+    </div>
+    <div class="pcard">
+      <h4><span class="mk out">→</span> Moves or comes later</h4>
+      <ul>
+        <li><b>Creating series in bulk</b> — done on the existing Series screen, one at a time</li>
+        <li><b>Creating seasons in bulk</b> — done on the Series screen, or inline here</li>
+        <li><b>Editing existing episodes by file</b> — a later phase, see below</li>
+        <li><b>Multiple seasons per upload</b> — one season per upload for now</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="call o fade-up">
+    <b>Why editing by spreadsheet comes later</b>
+    <span>Episodes can be reordered by dragging them in the CMS, which renumbers them. A spreadsheet that identifies episodes by number could therefore update the wrong one after a reorder — silently. When this returns, it will work by downloading the current episode list and editing that file, so every row carries a permanent identifier. Leaving it out of the first release keeps this delivery simple and safe.</span>
+  </div>
+
+  <div class="call g fade-up">
+    <b>Unchanged</b>
+    <span>The same roles keep access — Owner, Content Admin and Content Manager. Media files are read from the same storage in the same formats. The Series, Videos and Audio screens are untouched, and existing content is unaffected.</span>
+  </div>
+</section>
+
+<hr class="section-divider">
+
+<!-- ══════════ DECISIONS ══════════ -->
+<section id="decisions" class="page-section">
+  <div class="sec-head fade-up">
+    <div class="sec-tag o">Sign-off</div>
+    <h2 class="sec-title">Four Decisions Needed</h2>
+    <p class="sec-desc">Each carries our recommendation. Confirm these and development can begin.</p>
+  </div>
+
+  <div class="asks fade-up">
+    <div class="askrow">
+      <span class="an">1</span>
+      <h4>Is creating series one at a time acceptable?</h4>
+      <p>New series are added far less often than episodes. <span class="rec">Recommendation: yes</span> — create them on the existing Series screen and keep bulk upload focused on episodes.</p>
+    </div>
+    <div class="askrow">
+      <span class="an">2</span>
+      <h4>Is one season per upload acceptable?</h4>
+      <p>Three seasons would mean three uploads. <span class="rec">Recommendation: yes</span> — it keeps the flow unambiguous, and each upload takes seconds to set up.</p>
+    </div>
+    <div class="askrow">
+      <span class="an">3</span>
+      <h4>Should the automatic series trailer be kept?</h4>
+      <p>Today a newly imported series automatically gets a short trailer taken from its first episode. <span class="rec">Recommendation: keep it</span> — applied when a series has no trailer yet and episodes are uploaded to it.</p>
+    </div>
+    <div class="askrow">
+      <span class="an">4</span>
+      <h4>Should the current three-file import stay available during changeover?</h4>
+      <p>It could run alongside the new flow for a period. <span class="rec">Recommendation: no</span> — running both invites confusion, and the new flow covers everything the content team does today.</p>
+    </div>
+  </div>
+
+  <div class="call hi fade-up">
+    <b>Next step</b>
+    <span>On approval of these four points, development begins. No change reaches the live platform until the new flow has been tested end to end with a real batch of episodes and walked through with the content team.</span>
+  </div>
+</section>
+
+<footer>
+  <div class="fb">▶ Clix CMS</div>
+  Bulk Import — Screen Walkthrough · Version 1.0 · 10 August 2026<br>
+  Screens are design mockups; final styling follows the live CMS theme.
+</footer>
 
 <script>
-  /* ---- mermaid ---- */
-  mermaid.initialize({startOnLoad:false, theme:'base', securityLevel:'loose',
-    themeVariables:{
-      primaryColor:'#FBF8F6', primaryTextColor:'#1A3F4A', primaryBorderColor:'#FC9369',
-      lineColor:'#3D5C66', secondaryColor:'#DCE4E7', tertiaryColor:'#fff',
-      fontFamily:'Anek Latin, sans-serif', fontSize:'14px',
-      actorBkg:'#152a3a', actorTextColor:'#fff', actorBorder:'#152a3a',
-      noteBkgColor:'#fef3c7', noteBorderColor:'#fcd34d'
-    }});
-  let mermaidRendered=false;
-  function renderMermaid(){ if(mermaidRendered) return; mermaidRendered=true; mermaid.run({querySelector:'.mermaid'}); }
-
-  /* ---- diagram modal ---- */
-  function openDiagrams(){ document.getElementById('dmodal').classList.add('show'); renderMermaid(); }
-  function closeDiagrams(){ document.getElementById('dmodal').classList.remove('show'); }
-  function showPane(btn){
-    document.querySelectorAll('.dtab').forEach(t=>t.classList.remove('active'));
-    document.querySelectorAll('.dpane').forEach(p=>p.classList.remove('active'));
-    btn.classList.add('active'); document.getElementById(btn.dataset.pane).classList.add('active');
-  }
-
-  /* ---- assign demo ---- */
-  function openAssign(){ document.getElementById('assignOv').classList.add('show'); }
-  function closeAssign(){ document.getElementById('assignOv').classList.remove('show'); }
-
-  /* ---- toasts ---- */
-  const ICONS={ok:'✓',err:'!',info:'i'};
-  function toast(type,title,desc){
-    const wrap=document.getElementById('toasts');
-    const el=document.createElement('div'); el.className='toast '+type;
-    el.innerHTML='<div class="ti">'+(ICONS[type]||'i')+'</div><div><div class="tt">'+title+'</div>'+(desc?'<div class="td">'+desc+'</div>':'')+'</div>';
-    wrap.appendChild(el);
-    setTimeout(()=>{el.style.transition='opacity .3s,transform .3s';el.style.opacity='0';el.style.transform='translateY(8px)';setTimeout(()=>el.remove(),300);},4200);
-  }
-
-  /* ---- reveal / copy code ---- */
-  function reveal(btn){
-    const span=btn.closest('.codecell').querySelector('.codetxt');
-    const full=span.dataset.full;
-    if(span.textContent.indexOf('•')>-1){ span.textContent=full; btn.textContent='🙈'; }
-    else { span.textContent=full.split('-')[0]+'-••••••••'; btn.textContent='👁'; }
-  }
-  function copyCode(btn,demo){
-    let code='ASHTA-7K2M9QXP';
-    if(btn && !demo){ code=btn.closest('.codecell').querySelector('.codetxt').dataset.full; }
-    if(navigator.clipboard){ navigator.clipboard.writeText(code).catch(()=>{}); }
-    toast('ok','Copied to clipboard', code);
-  }
-
-  /* ---- doc nav active state ---- */
-  const links=[...document.querySelectorAll('.docnav a')];
-  const secs=links.map(a=>document.querySelector(a.getAttribute('href')));
-  const obs=new IntersectionObserver((entries)=>{
-    entries.forEach(e=>{ if(e.isIntersecting){
-      const id='#'+e.target.id; links.forEach(l=>l.classList.toggle('active', l.getAttribute('href')===id));
-    }});
-  },{rootMargin:'-20% 0px -70% 0px'});
-  secs.forEach(s=>s&&obs.observe(s));
-
-  /* ---- keyboard / overlay close ---- */
-  document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeDiagrams(); closeAssign(); }});
-  document.querySelectorAll('.ov').forEach(o=>o.addEventListener('click',e=>{ if(e.target===o) o.classList.remove('show'); }));
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
+  }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll('.fade-up').forEach((el) => io.observe(el));
 </script>
+
 </body>
 </html>
